@@ -1,0 +1,72 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+  relationMode      = "prisma"
+}
+
+model User {
+  id            String   @id @unique @default(cuid())
+  name          String
+  email         String   @unique
+  password      String   
+  phone         String   @unique
+  role          Role     @default(SUBSCRIBER)
+  created_at    DateTime @default(now())
+  is_active     Boolean  @default(true)
+  owned_clubs   Club[]
+  event_history Event[]
+}
+
+model Club {
+  id          String  @id @unique @default(cuid())
+  name        String
+  description String?
+  city        String
+  state       String
+  zipcode     String
+  cover_image String?
+  admin       User    @relation(fields: [admin_id], references: [id])
+  admin_id    String
+  Event       Event[]
+
+  @@index([admin_id])
+}
+
+model Event {
+  id           String    @id @unique @default(cuid())
+  name         String
+  description  String?
+  date         DateTime
+  cover_image  String?
+  club         Club      @relation(fields: [clubId], references: [id])
+  vip_list     User[]
+  clubId       String
+  payment      Payment[]
+  limit_of_vip Int
+
+  @@index([clubId])
+}
+
+model Payment {
+  id         String   @id @unique @default(cuid())
+  amount     Float
+  currency   String
+  created_at DateTime @default(now())
+  event      Event    @relation(fields: [eventId], references: [id])
+  eventId    String
+
+  @@index([eventId])
+}
+
+enum Role {
+  MANAGER
+  SUBSCRIBER
+}
