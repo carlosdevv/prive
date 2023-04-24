@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 
 import { db } from '@/lib/database'
+import { AuthenticateUser } from '../controllers/auth'
 
 function getGoogleCredentials() {
   const clientId = process.env.GOOGLE_CLIENT_ID
@@ -35,21 +36,18 @@ export const authOptions: NextAuthOptions = {
         password: {}
       },
       async authorize(credentials, req) {
-        return await fetch('api/login', {
-          method: 'POST',
-          body: JSON.stringify({
-            email: credentials!.email,
-            password: credentials!.password
-          })
+        const authenticateUser = new AuthenticateUser()
+
+        const user = await authenticateUser.execute({
+          email: credentials!.email,
+          password: credentials!.password
         })
-          .then(res => res.json())
-          .then(res => {
-            console.log(res.user)
-            return res.user
-          })
-          .catch(() => {
-            throw new Error('Error logging in')
-          })
+
+        if (user) {
+          return user
+        } else {
+          return null
+        }
       }
     }),
     GoogleProvider({
@@ -57,15 +55,10 @@ export const authOptions: NextAuthOptions = {
       clientSecret: getGoogleCredentials().clientSecret
     })
   ],
-  secret: process.env.NEXTAUTH_SECRET,
-  jwt: { secret: process.env.JWT_SECRET },
   callbacks: {
-    async session({ token, session }) {
+    async session({ token, session, user }) {
       if (token) {
-        session.user.id = token.id
-        session.user.name = token.name
-        session.user.email = token.email
-        session.user.role = token.role
+        session.user = token as any
       }
 
       return session
@@ -85,15 +78,9 @@ export const authOptions: NextAuthOptions = {
       }
 
       return {
-        id: dbUser.id,
-        name: dbUser.name,
-        email: dbUser.email,
-        phone: dbUser.phone,
-        role: dbUser.role,
+        ...user,
+        ...token
       }
-    },
-    async redirect() {
-      return '/dashboard'
     }
   }
 }

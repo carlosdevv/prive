@@ -1,12 +1,11 @@
-import { Logo } from "@/components/Icons"
-import { Metadata } from "next"
-import Link from "next/link"
-import { LoginForm } from "../components/loginForm"
-
+import { Icons } from '@/components/Icons'
+import { Metadata } from 'next'
+import Link from 'next/link'
+import { LoginForm } from '../components/formLogin'
 
 export const metadata: Metadata = {
-  title: "Login",
-  description: "Faça o Login em sua conta",
+  title: 'Login',
+  description: 'Faça o Login em sua conta'
 }
 
 export default function LoginPage() {
@@ -14,7 +13,7 @@ export default function LoginPage() {
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
-          <Logo className="mx-auto h-6 w-6" />
+          <Icons.logo className="mx-auto h-6 w-6" />
           <h1 className="text-2xl font-semibold tracking-tight">
             Bem vindo ao Prive
           </h1>

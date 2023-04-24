@@ -1,13 +1,13 @@
-import Link from "next/link"
+import Link from 'next/link'
 
-import { Logo } from "@/components/Icons"
-import { buttonVariants } from "@/components/Ui/Button"
-import { cn } from "@/lib/utils"
-import { RegisterForm } from "../components/registerForm"
+import { Icons } from '@/components/Icons'
+import { buttonVariants } from '@/components/Ui/button'
+import { cn } from '@/lib/utils'
+import { RegisterForm } from '../components/formRegister'
 
 export const metadata = {
-  title: "Registrar",
-  description: "Crie uma conta para começar.",
+  title: 'Registrar',
+  description: 'Crie uma conta para começar.'
 }
 
 export default function RegisterPage() {
@@ -16,8 +16,8 @@ export default function RegisterPage() {
       <Link
         href="/login"
         className={cn(
-          buttonVariants({ variant: "ghost" }),
-          "absolute top-4 right-4 md:top-8 md:right-8"
+          buttonVariants({ variant: 'ghost' }),
+          'absolute top-4 right-4 md:top-8 md:right-8'
         )}
       >
         Login
@@ -26,7 +26,7 @@ export default function RegisterPage() {
       <div className="lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
-            <Logo className="mx-auto h-6 w-6" />
+            <Icons.logo className="mx-auto h-6 w-6" />
             <h1 className="text-2xl font-semibold tracking-tight">
               Criar uma conta
             </h1>
@@ -36,14 +36,14 @@ export default function RegisterPage() {
           </div>
           <RegisterForm />
           <p className="px-8 text-center text-sm text-slate-500 dark:text-slate-400">
-            Ao clicar em registar, você concorda com nossos{" "}
+            Ao clicar em registar, você concorda com nossos{' '}
             <Link
               href="/terms"
               className="hover:text-brand underline underline-offset-4"
             >
               Termos de Serviço
-            </Link>{" "}
-            e{" "}
+            </Link>{' '}
+            e{' '}
             <Link
               href="/privacy"
               className="hover:text-brand underline underline-offset-4"

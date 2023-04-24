@@ -1,45 +1,57 @@
-import { BiBuilding, BiMoon, BiRightArrowAlt, BiSun } from 'react-icons/bi'
-import { BsCheck, BsFillPersonFill, BsThreeDotsVertical } from 'react-icons/bs'
-import { FcGoogle } from 'react-icons/fc'
 import {
-  FiAlertCircle,
-  FiEye,
-  FiEyeOff,
-  FiFramer as Logo,
-  FiHome,
-  FiLoader,
-  FiLock,
-  FiLogOut,
-  FiMail,
-  FiPhone,
-  FiX
-} from 'react-icons/fi'
-import { MdArrowBackIos } from 'react-icons/md'
-import { RiUserSettingsLine } from 'react-icons/ri'
-import { TbCalendarEvent } from 'react-icons/tb'
+  AlertTriangle,
+  ArrowRight,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  CreditCard,
+  Eye,
+  EyeOff,
+  File,
+  FileText,
+  Framer,
+  HelpCircle,
+  Image,
+  Loader,
+  MoreVertical,
+  Pizza,
+  Plus,
+  Settings,
+  Trash,
+  Twitter,
+  User,
+  X,
+  CalendarDays,
+  type Icon as LucideIcon
+} from 'lucide-react'
 
-export {
-  FiLock,
-  MdArrowBackIos,
-  Logo,
-  FiMail,
-  FiLoader,
-  FcGoogle,
-  FiHome,
-  FiLogOut,
-  BiRightArrowAlt,
-  BsFillPersonFill,
-  FiEye,
-  FiEyeOff,
-  FiX,
-  BiBuilding,
-  FiPhone,
-  BsCheck,
-  BsThreeDotsVertical,
-  FiAlertCircle,
-  TbCalendarEvent,
-  RiUserSettingsLine,
-  BiSun,
-  BiMoon,
+import { FcGoogle } from 'react-icons/fc'
+
+export type Icon = LucideIcon
+
+export const Icons = {
+  logo: Framer,
+  eye: Eye,
+  eyeOff: EyeOff,
+  close: X,
+  spinner: Loader,
+  chevronLeft: ChevronLeft,
+  chevronRight: ChevronRight,
+  trash: Trash,
+  post: FileText,
+  page: File,
+  media: Image,
+  settings: Settings,
+  billing: CreditCard,
+  ellipsis: MoreVertical,
+  add: Plus,
+  warning: AlertTriangle,
+  user: User,
+  arrowRight: ArrowRight,
+  help: HelpCircle,
+  pizza: Pizza,
+  twitter: Twitter,
+  check: Check,
+  google: FcGoogle,
+  events: CalendarDays,
 }
-
