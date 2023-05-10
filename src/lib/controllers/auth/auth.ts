@@ -1,11 +1,8 @@
-import {
-  IAuthenticateUserDTO,
-  UserResponse,
-  UserSecureData
-} from '@/lib/types/types'
+import { db } from '@/lib/database'
+
 import { compare } from 'bcryptjs'
 import { sign } from 'jsonwebtoken'
-import { db } from '../database'
+import { IAuthenticateUserDTO, UserSecureData, UserResponse } from './types'
 
 export class AuthenticateUser {
   async execute({ email, password }: IAuthenticateUserDTO) {

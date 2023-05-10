@@ -1,7 +1,7 @@
 import { Icons } from '@/components/Icons'
 import { Metadata } from 'next'
 import Link from 'next/link'
-import { LoginForm } from '../components/formLogin'
+import { LoginForm } from '../components/form-login'
 
 export const metadata: Metadata = {
   title: 'Login',
@@ -17,14 +17,14 @@ export default function LoginPage() {
           <h1 className="text-2xl font-semibold tracking-tight">
             Bem vindo ao Prive
           </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">
+          <p className="text-sm text-muted-foreground">
             Informe suas credenciais para acesssar sua conta
           </p>
         </div>
 
         <LoginForm />
 
-        <p className="px-8 text-center text-sm text-slate-500 dark:text-slate-400">
+        <p className="px-8 text-center text-sm text-muted-foreground">
           <Link
             href="/register"
             className="hover:text-brand underline underline-offset-4"

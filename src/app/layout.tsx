@@ -1,7 +1,7 @@
 import { Inter as FontSans } from 'next/font/google'
 
 import { TailwindIndicator } from '@/components/TailwindIndicator'
-import { Toaster } from '@/components/Ui/toaster'
+import { Toaster } from '@/components/ui/toaster'
 import { siteConfig } from '@/lib/config'
 import { cn } from '@/lib/utils'
 import '@/styles/globals.css'
@@ -50,9 +50,10 @@ export const metadata = {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
-      lang="en"
+      lang="pt-br"
+      suppressHydrationWarning
       className={cn(
-        'bg-white font-sans text-slate-900 antialiased',
+        'min-h-screen bg-background font-sans antialiased',
         fontSans.variable
       )}
     >

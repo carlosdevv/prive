@@ -4,7 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 
 import { db } from '@/lib/database'
-import { AuthenticateUser } from '../controllers/auth'
+import { AuthenticateUser } from '../controllers/auth/auth'
 
 function getGoogleCredentials() {
   const clientId = process.env.GOOGLE_CLIENT_ID

@@ -1,4 +1,4 @@
-import { CreateUser } from '@/lib/controllers/create-user'
+import { CreateUser } from '@/lib/controllers/user/create-user'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(

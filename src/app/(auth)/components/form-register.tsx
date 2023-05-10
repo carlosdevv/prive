@@ -7,10 +7,10 @@ import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
 import { Icons } from '@/components/Icons'
-import { buttonVariants } from '@/components/Ui/button'
-import { Input } from '@/components/Ui/input'
-import { Label } from '@/components/Ui/label'
-import { useCreateUser } from '@/lib/services/createUser/useCreateUser'
+import { buttonVariants } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { useCreateUser } from '@/services/createUser/useCreateUser'
 import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -182,10 +182,12 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
       </form>
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-slate-300" />
+          <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-slate-600">Ou continue com</span>
+          <span className="bg-background px-2 text-muted-foreground">
+            Ou continue com
+          </span>
         </div>
       </div>
       <button

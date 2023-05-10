@@ -15,6 +15,8 @@ declare module 'next-auth' {
       id: string
       role: Role
       token: string
+      name: string
+      email: string
       refreshToken: string
     }
   }

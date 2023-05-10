@@ -1,5 +1,4 @@
-import { Icons } from "@/components/Icons"
-
+import { Icons } from '@/components/Icons'
 
 export type NavItem = {
   title: string
@@ -8,6 +7,12 @@ export type NavItem = {
 }
 
 export type MainNavItem = NavItem
+
+export type UserNavItem = {
+  icon?: keyof typeof Icons
+  href?: string
+  onClick?: () => void
+} & Pick<NavItem, 'title' | 'disabled'>
 
 export type SidebarNavItem = {
   title: string
@@ -24,3 +29,9 @@ export type SidebarNavItem = {
       items: any[]
     }
 )
+
+export type PrivateLayoutConfig = {
+  mainNav: MainNavItem[]
+  dashboardNavBar: SidebarNavItem[]
+  userNav: UserNavItem[]
+}

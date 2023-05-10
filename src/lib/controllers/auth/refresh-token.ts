@@ -1,6 +1,6 @@
-import { IRefreshTokenDTO, UserSecureData } from '@/lib/types/types'
 import { sign } from 'jsonwebtoken'
-import { db } from '../database'
+import { IRefreshTokenDTO, UserSecureData } from './types'
+import { db } from '@/lib/database'
 
 export class RefreshToken {
   async execute({ refreshToken, userId }: IRefreshTokenDTO) {

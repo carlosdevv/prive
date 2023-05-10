@@ -1,8 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { User } from 'next-auth'
 import { signOut } from 'next-auth/react'
+import Link from 'next/link'
 
 import {
   DropdownMenu,
@@ -10,46 +10,43 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger
-} from '@/components/Ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu'
+import { UserNavItem } from '../types'
 import { UserAvatar } from './user-avatar'
 
 interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
   user: Pick<User, 'name' | 'email'>
+  items?: UserNavItem[]
 }
 
-export function UserAccountNav({ user }: UserAccountNavProps) {
+export function UserAccountNav({ user, items }: UserAccountNavProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <UserAvatar
-          user={{ name: user.name! }}
-          className="h-8 w-8"
-        />
+        <UserAvatar user={{ name: user.name! }} className="h-8 w-8" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <div className="flex items-center justify-start gap-2 p-2">
           <div className="flex flex-col space-y-1 leading-none">
             {user.name && <p className="font-medium">{user.name}</p>}
             {user.email && (
-              <p className="w-[200px] truncate text-sm text-slate-600">
+              <p className="w-[200px] truncate text-sm text-muted-foreground">
                 {user.email}
               </p>
             )}
           </div>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <Link href="/dashboard">Dashboard</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/dashboard/billing">Billing</Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/dashboard/settings">Settings</Link>
-        </DropdownMenuItem>
+        {items?.map((item, index) => (
+          <DropdownMenuItem asChild>
+            <Link key={index} href={item.disabled ? '/' : item.href!}>
+              {item.title}
+            </Link>
+          </DropdownMenuItem>
+        ))}
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          className="cursor-pointer"
+          className="cursor-pointer text-red-500"
           onSelect={event => {
             event.preventDefault()
             signOut({
@@ -57,7 +54,7 @@ export function UserAccountNav({ user }: UserAccountNavProps) {
             })
           }}
         >
-          Sign out
+          Sair
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

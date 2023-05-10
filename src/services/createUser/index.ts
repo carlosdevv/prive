@@ -1,6 +1,6 @@
 import api from '@/lib/api'
-import { UserSecureData } from '@/lib/types/types'
 import { CreateUserBody } from './types'
+import { UserSecureData } from '@/lib/controllers/user/types'
 
 export const createUser = async (body: CreateUserBody) => {
   const url = '/api/register'

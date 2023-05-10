@@ -1,6 +1,6 @@
 import { hash } from 'bcryptjs'
-import { db } from '../database'
-import { ICreateUserDTO, UserSecureData } from '../types/types'
+import { ICreateUserDTO, UserSecureData } from './types'
+import { db } from '@/lib/database'
 
 export class CreateUser {
   async execute({ name, email, password }: ICreateUserDTO) {

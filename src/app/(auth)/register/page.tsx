@@ -1,9 +1,9 @@
 import Link from 'next/link'
 
 import { Icons } from '@/components/Icons'
-import { buttonVariants } from '@/components/Ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { RegisterForm } from '../components/formRegister'
+import { RegisterForm } from '../components/form-register'
 
 export const metadata = {
   title: 'Registrar',
@@ -22,7 +22,7 @@ export default function RegisterPage() {
       >
         Login
       </Link>
-      <div className="hidden h-full bg-slate-100 lg:block" />
+      <div className="hidden h-full bg-muted lg:block" />
       <div className="lg:p-8">
         <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
           <div className="flex flex-col space-y-2 text-center">
@@ -30,12 +30,12 @@ export default function RegisterPage() {
             <h1 className="text-2xl font-semibold tracking-tight">
               Criar uma conta
             </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-muted-foreground">
               Insira suas informações para criar conta
             </p>
           </div>
           <RegisterForm />
-          <p className="px-8 text-center text-sm text-slate-500 dark:text-slate-400">
+          <p className="px-8 text-center text-sm text-muted-foreground">
             Ao clicar em registar, você concorda com nossos{' '}
             <Link
               href="/terms"
