@@ -2,6 +2,8 @@
 
 import * as React from 'react'
 
+import { useCreateAsset } from '@/app/(actions)/Asset/services/useCreateAsset'
+import { AssetProps } from '@/app/(models)/asset'
 import { Icons } from '@/components/Icons'
 import { Button, ButtonProps, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -34,13 +36,14 @@ import {
 import { toast } from '@/hooks/useToast'
 import { cn } from '@/lib/utils'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { ClassEnum } from '@prisma/client'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
 interface CreateAssetButtonProps extends ButtonProps {}
 
 const createAssetSchema = z.object({
-  asset: z.string().nonempty('É necessário informar um ativo.'),
+  name: z.string().nonempty('É necessário informar um ativo.'),
   amount: z.coerce
     .number()
     .nonnegative('Insira um valor positivo.')
@@ -68,29 +71,37 @@ export function CreateAssetButton({
   } = useForm<CreateAssetFormData>({
     resolver: zodResolver(createAssetSchema)
   })
-  const [isLoading, setIsLoading] = React.useState<boolean>(false)
-  const [assetClass, setAssetClass] = React.useState('rendaFixa')
+  const [assetClass, setAssetClass] = React.useState('RENDA_FIXA')
 
-  function onSubmit() {
-    setIsLoading(true)
-    console.log('entrei')
-
-    try {
-      console.log('submit')
-      reset()
+  const { mutate: createAsset, isLoading } = useCreateAsset({
+    onSuccess: () => {
       toast({
         title: 'Sucesso.',
         description: 'Ativo criado com sucesso.'
       })
-    } catch (error) {
-      setIsLoading(false)
+    },
+    onError: () => {
       toast({
         title: 'Something went wrong.',
         description: 'Erro.',
         variant: 'destructive'
       })
     }
-    setIsLoading(false)
+  })
+
+  function onSubmit(data: CreateAssetFormData) {
+    const isRendaFixa = assetClass === 'RENDA_FIXA'
+
+    const newAsset: AssetProps = {
+      name: data.name,
+      class: assetClass as ClassEnum,
+      amount: isRendaFixa ? undefined : data.amount,
+      value: isRendaFixa ? data.amount : undefined,
+      goal: data.goal
+    }
+
+    createAsset(newAsset)
+    reset()
   }
 
   return (
@@ -126,12 +137,12 @@ export function CreateAssetButton({
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Classes</SelectLabel>
-                      <SelectItem value="rendaFixa">Renda Fixa</SelectItem>
-                      <SelectItem value="acoes">Ações</SelectItem>
-                      <SelectItem value="fii">Fundos Imobiliários</SelectItem>
-                      <SelectItem value="stocks">Stocks</SelectItem>
-                      <SelectItem value="reits">Reits</SelectItem>
-                      <SelectItem value="crypto">Crypto</SelectItem>
+                      <SelectItem value="RENDA_FIXA">Renda Fixa</SelectItem>
+                      <SelectItem value="ACOES">Ações</SelectItem>
+                      <SelectItem value="FII">Fundos Imobiliários</SelectItem>
+                      <SelectItem value="STOCKS">Stocks</SelectItem>
+                      <SelectItem value="REITS">Reits</SelectItem>
+                      <SelectItem value="CRYPTO">Crypto</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -140,7 +151,7 @@ export function CreateAssetButton({
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
                   <Label>Ativo</Label>
-                  {assetClass !== 'rendaFixa' && (
+                  {assetClass !== 'RENDA_FIXA' && (
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -157,30 +168,30 @@ export function CreateAssetButton({
                   )}
                 </div>
                 <Input
-                  {...register('asset')}
-                  id="asset"
+                  {...register('name')}
+                  id="name"
                   placeholder={
-                    assetClass === 'rendaFixa'
+                    assetClass === 'RENDA_FIXA'
                       ? 'Ex: Tesouro Selic'
                       : 'Ex: PETR4 / AAPL'
                   }
                 />
-                {errors.asset && (
+                {errors.name && (
                   <p className="px-1 text-xs text-red-600">
-                    {errors.asset.message}
+                    {errors.name.message}
                   </p>
                 )}
               </div>
 
               <div className="flex flex-col gap-2">
                 <Label>{`${
-                  assetClass === 'rendaFixa' ? 'Valor' : 'Quantidade'
+                  assetClass === 'RENDA_FIXA' ? 'Valor' : 'Quantidade'
                 }`}</Label>
                 <Input
                   {...register('amount')}
                   id={'amount'}
                   placeholder={
-                    assetClass === 'rendaFixa'
+                    assetClass === 'RENDA_FIXA'
                       ? 'Valor do ativo (R$)'
                       : 'Quantidade do ativo'
                   }

@@ -1,6 +1,6 @@
-import { ClassEnum } from "@prisma/client"
+import { ClassEnum } from '@prisma/client'
 
-export type ICreateAssetDTO = {
+export type AssetProps = {
   name: string
   class: ClassEnum
   amount?: number
