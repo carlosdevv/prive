@@ -1,3 +1,4 @@
+import { UserSession } from '@/app/(services)/user/types'
 import { CalendarDateRangePicker } from '@/components/CalendarDateRangePicker'
 import { Header } from '@/components/Header'
 import { LayoutPage } from '@/components/LayoutPage'
@@ -9,10 +10,27 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { authOptions } from '@/lib/auth/next-auth'
+import { db } from '@/lib/database'
 import { getCurrentUser } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import { DashboardCards } from './components/dashboard-cards'
 import { InvestmentGoals } from './components/investment-goals'
+
+async function getUserGoals(user: UserSession) {
+  return await db.goal.findMany({
+    where: {
+      userId: user?.id
+    }
+  })
+}
+
+async function getUserProps(user: UserSession) {
+  return await db.user.findFirst({
+    where: {
+      id: user?.id
+    }
+  })
+}
 
 export default async function DashboardPage() {
   const user = await getCurrentUser()
@@ -20,6 +38,10 @@ export default async function DashboardPage() {
   if (!user) {
     redirect(authOptions?.pages?.signIn || '/login')
   }
+
+  const userProps = await getUserProps(user)
+  const goals = await getUserGoals(user)
+
   return (
     <LayoutPage>
       <Header heading="Dashboard" text={`Bem vindo, ${user.name}.`}>
@@ -28,7 +50,7 @@ export default async function DashboardPage() {
         </div>
       </Header>
 
-      <DashboardCards />
+      <DashboardCards patrimony={userProps?.patrimony} goals={goals} />
 
       <div className="flex">
         <Card className="w-full">
@@ -39,7 +61,7 @@ export default async function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <InvestmentGoals />
+            <InvestmentGoals goals={goals} />
           </CardContent>
         </Card>
       </div>

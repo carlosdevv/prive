@@ -1,7 +1,7 @@
-import { AssetProps } from '@/app/(models)/asset'
 import { db } from '@/lib/database'
 import { getCurrentUser } from '@/lib/session'
 import { ClassEnum } from '@prisma/client'
+import { AssetProps } from '../types'
 
 export async function createAssetDB({
   name,

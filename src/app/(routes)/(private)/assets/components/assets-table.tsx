@@ -1,109 +1,135 @@
 'use client'
 
-import { AssetProps } from '@/app/(models)/asset'
-import { EmptyPlaceholder } from '@/components/EmptyPlaceholder'
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table'
-import { db } from '@/lib/database'
-import { getCurrentUser } from '@/lib/session'
-import { useState } from 'react'
-import { CreateAssetButton } from './create-asset'
+import { AssetDTO } from '@/app/(services)/asset/types'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Asset, ClassEnum } from '@prisma/client'
+import { useCallback, useMemo } from 'react'
+import { AssetsTableContent } from './assets-table-content'
 
-export async function AssetsTable() {
-  const [assets, setAssets] = useState<AssetProps | []>([])
-  const user = await getCurrentUser()
+type AssetsTableProps = {
+  assets: Asset[]
+}
 
-  const handleAssets = await db.asset.findMany({
-    where: {
-      id: user?.id
+export function AssetsTable({ assets }: AssetsTableProps) {
+  const validateAssetClass = useMemo(() => {
+    return {
+      RENDA_FIXA: assets.filter(asset => asset.class === ClassEnum.RENDA_FIXA),
+      ACOES: assets.filter(asset => asset.class === ClassEnum.ACAO),
+      FII: assets.filter(asset => asset.class === ClassEnum.FII),
+      STOCKS: assets.filter(asset => asset.class === ClassEnum.STOCK),
+      REITS: assets.filter(asset => asset.class === ClassEnum.REIT),
+      CRYPTO: assets.filter(asset => asset.class === ClassEnum.CRYPTO)
     }
-  })
+  }, [])
 
-  const invoices = [
-    {
-      invoice: 'INV001',
-      paymentStatus: 'Paid',
-      totalAmount: '$250.00',
-      paymentMethod: 'Credit Card'
-    },
-    {
-      invoice: 'INV002',
-      paymentStatus: 'Pending',
-      totalAmount: '$150.00',
-      paymentMethod: 'PayPal'
-    },
-    {
-      invoice: 'INV003',
-      paymentStatus: 'Unpaid',
-      totalAmount: '$350.00',
-      paymentMethod: 'Bank Transfer'
-    },
-    {
-      invoice: 'INV004',
-      paymentStatus: 'Paid',
-      totalAmount: '$450.00',
-      paymentMethod: 'Credit Card'
-    },
-    {
-      invoice: 'INV005',
-      paymentStatus: 'Paid',
-      totalAmount: '$550.00',
-      paymentMethod: 'PayPal'
-    },
-    {
-      invoice: 'INV006',
-      paymentStatus: 'Pending',
-      totalAmount: '$200.00',
-      paymentMethod: 'Bank Transfer'
-    },
-    {
-      invoice: 'INV007',
-      paymentStatus: 'Unpaid',
-      totalAmount: '$300.00',
-      paymentMethod: 'Credit Card'
-    }
-  ]
+  const handleFormatAsset = useCallback((asset: Asset[]) => {
+    const isRendaFixa =
+      asset && asset.some(asset => asset.class === ClassEnum.RENDA_FIXA)
+
+    const formattedAssets: AssetDTO[] = asset.map(asset => {
+      if (isRendaFixa) {
+        return {
+          name: asset.name,
+          value: asset.value,
+          goal: asset.goal,
+          currentGoal: 0,
+          dif: 0,
+          aporte: 0,
+          isBuy: false
+        }
+      }
+
+      return {
+        name: asset.name,
+        value: asset.value,
+        amount: asset.amount,
+        goal: asset.goal,
+        price: 0,
+        currentGoal: 0,
+        dif: 0,
+        aporte: 0,
+        isBuy: false
+      }
+    })
+
+    return formattedAssets
+  }, [])
+
+  const TabsData = {
+    tabsData: [
+      {
+        value: 'RENDA_FIXA',
+        title: 'Renda Fixa',
+        content: (
+          <AssetsTableContent
+            isRendaFixa
+            assets={handleFormatAsset(validateAssetClass.RENDA_FIXA)}
+          />
+        )
+      },
+      {
+        value: 'ACOES',
+        title: 'Ações',
+        content: (
+          <AssetsTableContent
+            assets={handleFormatAsset(validateAssetClass.ACOES)}
+          />
+        )
+      },
+      {
+        value: 'FII',
+        title: 'Fundos Imobiliários',
+        content: (
+          <AssetsTableContent
+            assets={handleFormatAsset(validateAssetClass.FII)}
+          />
+        )
+      },
+      {
+        value: 'STOCKS',
+        title: 'Stocks',
+        content: (
+          <AssetsTableContent
+            assets={handleFormatAsset(validateAssetClass.STOCKS)}
+          />
+        )
+      },
+      {
+        value: 'REITS',
+        title: 'Reits',
+        content: (
+          <AssetsTableContent
+            assets={handleFormatAsset(validateAssetClass.REITS)}
+          />
+        )
+      },
+      {
+        value: 'CRYPTO',
+        title: 'Crypto',
+        content: (
+          <AssetsTableContent
+            assets={handleFormatAsset(validateAssetClass.CRYPTO)}
+          />
+        )
+      }
+    ]
+  }
 
   return (
     <>
-      <Table>
-        <TableCaption>A list of your recent invoices.</TableCaption>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-[100px]">Invoice</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Method</TableHead>
-            <TableHead className="text-right">Amount</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {invoices.map(invoice => (
-            <TableRow key={invoice.invoice}>
-              <TableCell className="font-medium">{invoice.invoice}</TableCell>
-              <TableCell>{invoice.paymentStatus}</TableCell>
-              <TableCell>{invoice.paymentMethod}</TableCell>
-              <TableCell className="text-right">
-                {invoice.totalAmount}
-              </TableCell>
-            </TableRow>
+      <Tabs defaultValue="RENDA_FIXA">
+        <TabsList className="grid w-full grid-cols-6">
+          {TabsData.tabsData.map(tab => (
+            <TabsTrigger key={tab.value} value={tab.value}>
+              {tab.title}
+            </TabsTrigger>
           ))}
-        </TableBody>
-      </Table>
-      <EmptyPlaceholder>
-        <EmptyPlaceholder.Icon name="wallet" />
-        <EmptyPlaceholder.Title>Sem ativos ainda.</EmptyPlaceholder.Title>
-        <EmptyPlaceholder.Description>
-          Voce ainda não tem ativos. Comece adicionando um.
-        </EmptyPlaceholder.Description>
-        <CreateAssetButton variant="outline" />
-      </EmptyPlaceholder>
+        </TabsList>
+
+        {TabsData.tabsData.map(tab => (
+          <TabsContent key={tab.value} value={tab.value}>{tab.content}</TabsContent>
+        ))}
+      </Tabs>
     </>
   )
 }

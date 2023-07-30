@@ -1,4 +1,4 @@
-import { createAssetDB } from '@/app/(actions)/Asset/repository/create-asset'
+import { createAssetDB } from '@/app/(services)/asset/repository/create-asset'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function POST(req: NextApiRequest, res: NextApiResponse) {

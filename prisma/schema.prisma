@@ -21,17 +21,30 @@ model User {
   created_at DateTime @default(now())
   is_active  Boolean  @default(true)
   assets     Asset[]
+  goals      Goal[]
+  patrimony  Float?   @default(0)
 }
 
 model Asset {
-  id      String    @id @unique @default(cuid())
-  name    String
-  class   ClassEnum
-  value   Float?
-  amount  Float?
-  goal    Int?
-  userId  String
-  User    User      @relation(fields: [userId], references: [id])
+  id     String    @id @unique @default(cuid())
+  name   String
+  class  ClassEnum
+  value  Float?
+  amount Float?
+  goal   Int?
+  userId String
+  User   User      @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
+model Goal {
+  id     String    @id @unique @default(cuid())
+  class  ClassEnum
+  value  Float?    @default(0)
+  goal   Float?    @default(16.6666667)
+  userId String
+  User   User      @relation(fields: [userId], references: [id])
 
   @@index([userId])
 }

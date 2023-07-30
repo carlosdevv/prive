@@ -2,8 +2,7 @@
 
 import * as React from 'react'
 
-import { useCreateAsset } from '@/app/(actions)/Asset/services/useCreateAsset'
-import { AssetProps } from '@/app/(models)/asset'
+import { AssetProps } from '@/app/(services)/asset/types'
 import { Icons } from '@/components/Icons'
 import { Button, ButtonProps, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -39,6 +38,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ClassEnum } from '@prisma/client'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { useCreateAsset } from '@/app/(services)/asset/useAsset'
 
 interface CreateAssetButtonProps extends ButtonProps {}
 

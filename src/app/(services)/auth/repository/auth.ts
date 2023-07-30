@@ -2,7 +2,7 @@ import { db } from '@/lib/database'
 
 import { compare } from 'bcryptjs'
 import { sign } from 'jsonwebtoken'
-import { IAuthenticateUserDTO, UserSecureData, UserResponse } from './types'
+import { IAuthenticateUserDTO, UserSecureData, UserResponse } from '../types'
 
 export class AuthenticateUser {
   async execute({ email, password }: IAuthenticateUserDTO) {

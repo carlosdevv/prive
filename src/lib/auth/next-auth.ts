@@ -3,8 +3,8 @@ import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import GoogleProvider from 'next-auth/providers/google'
 
+import { AuthenticateUser } from '@/app/(services)/auth/repository/auth'
 import { db } from '@/lib/database'
-import { AuthenticateUser } from '../controllers/auth/auth'
 
 function getGoogleCredentials() {
   const clientId = process.env.GOOGLE_CLIENT_ID
@@ -56,7 +56,7 @@ export const authOptions: NextAuthOptions = {
     })
   ],
   callbacks: {
-    async session({ token, session, user }) {
+    async session({ token, session }) {
       if (token) {
         session.user = token as any
       }

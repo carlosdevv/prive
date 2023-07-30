@@ -1,29 +1,66 @@
 import { Separator } from '@/components/ui/separator'
+import { ClassEnum } from '@prisma/client'
 import ResumeInvestment from './resume-investment'
 
-export function InvestmentGoals() {
+type InvestmentGoalsProps = {
+  goals:
+    | {
+        id: string
+        class: ClassEnum
+        value: number | null
+        userId: string
+        goal: number | null
+      }[]
+}
+
+export function InvestmentGoals({ goals }: InvestmentGoalsProps) {
+  const ResumeInvestmentProps = [
+    {
+      title: 'Renda Fixa',
+      value: goals?.find(goal => goal.class === ClassEnum.RENDA_FIXA)!.value,
+      meta: goals?.find(goal => goal.class === ClassEnum.RENDA_FIXA)!.goal
+    },
+    {
+      title: 'Ações',
+      value: goals?.find(goal => goal.class === ClassEnum.ACAO)!.value,
+      meta: goals?.find(goal => goal.class === ClassEnum.ACAO)!.goal
+    },
+    {
+      title: 'Fundos Imobiliários',
+      value: goals?.find(goal => goal.class === ClassEnum.FII)!.value,
+      meta: goals?.find(goal => goal.class === ClassEnum.FII)!.goal
+    },
+    {
+      title: 'Stocks',
+      value: goals?.find(goal => goal.class === ClassEnum.STOCK)!.value,
+      meta: goals?.find(goal => goal.class === ClassEnum.STOCK)!.goal
+    },
+    {
+      title: 'Reits',
+      value: goals?.find(goal => goal.class === ClassEnum.REIT)!.value,
+      meta: goals?.find(goal => goal.class === ClassEnum.REIT)!.goal
+    },
+    {
+      title: 'Crypto',
+      value: goals?.find(goal => goal.class === ClassEnum.CRYPTO)!.value,
+      meta: goals?.find(goal => goal.class === ClassEnum.CRYPTO)!.goal
+    }
+  ]
+
   return (
     <div className="space-y-8">
       <div className="flex-col items-center">
-        <ResumeInvestment
-          title={'Renda Fixa'}
-          value={10331.92}
-          currentGoal={0}
-        />
-        <Separator className="mb-4" />
-        <ResumeInvestment title={'Ações'} value={10331.92} currentGoal={0} />
-        <Separator className="mb-4" />
-        <ResumeInvestment
-          title={'Fundos Imobiliários'}
-          value={10331.92}
-          currentGoal={0}
-        />
-        <Separator className="mb-4" />
-        <ResumeInvestment title={'Stocks'} value={10331.92} currentGoal={0} />
-        <Separator className="mb-4" />
-        <ResumeInvestment title={'Reits'} value={10331.92} currentGoal={0} />
-        <Separator className="mb-4" />
-        <ResumeInvestment title={'Crypto'} value={10331.92} currentGoal={0} />
+        {ResumeInvestmentProps.map((props, index) => (
+          <>
+            <ResumeInvestment
+              key={props.title}
+              title={props.title}
+              value={props.value}
+              meta={props.meta}
+            />
+            {index < 5 && <Separator className="mb-4" />}
+          </>
+        ))}
       </div>
     </div>
   )

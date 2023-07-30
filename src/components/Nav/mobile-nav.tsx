@@ -28,7 +28,7 @@ export function MobileNav({ items, children }: MobileNavProps) {
         <nav className="grid grid-flow-row auto-rows-max text-sm">
           {items.map((item, index) => (
             <Link
-              key={index}
+              key={item.href}
               href={item.disabled ? '#' : item.href}
               className={cn(
                 'flex w-full items-center rounded-md p-2 text-sm font-medium hover:underline',
