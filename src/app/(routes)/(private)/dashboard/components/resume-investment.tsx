@@ -1,5 +1,5 @@
 'use client'
-import { useFetchUSDCotation } from '@/app/(services)/coin/useCoin'
+import { useFetchUSDCotation } from '@/app/(services)/asset/useAsset'
 import { Icons } from '@/components/Icons'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'

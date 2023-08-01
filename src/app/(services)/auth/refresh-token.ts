@@ -20,7 +20,8 @@ export class RefreshToken {
       id: user.id,
       created_at: user.created_at,
       is_active: user.is_active,
-      role: user.role
+      role: user.role,
+      patrimony: user.patrimony
     }
 
     const token = sign({ user: userSecureData }, process.env.JWT_SECRET!, {

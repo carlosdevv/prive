@@ -13,15 +13,11 @@ export function AssetsTableContent({
 }: AssetsTableContentProps) {
   return (
     <>
-      {assets && (
-        <>
-          <DataTable
-            columns={isRendaFixa ? rendaFixaColumns : assetColumns}
-            data={assets}
-            isAssetTable
-          />
-        </>
-      )}
+      <DataTable
+        columns={isRendaFixa ? rendaFixaColumns : assetColumns}
+        data={assets || []}
+        isAssetTable
+      />
     </>
   )
 }

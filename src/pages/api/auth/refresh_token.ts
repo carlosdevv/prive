@@ -1,4 +1,4 @@
-import { RefreshToken } from '@/lib/controllers/auth/refresh-token'
+import { RefreshToken } from '@/app/(services)/auth/refresh-token'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(

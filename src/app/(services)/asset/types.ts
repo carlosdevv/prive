@@ -6,11 +6,12 @@ export type AssetProps = {
   amount?: number
   value?: number
   goal?: number
+  userId: string
 }
 
 export type AssetDTO = {
   name: string
-  value: number | null
+  value?: number | null
   amount?: number | null
   goal: number | null
   price?: number
@@ -21,3 +22,15 @@ export type AssetDTO = {
 }
 
 export type CreateAssetBody = AssetProps
+
+export enum CoinOptions {
+  USD = 'USD-BRL',
+  BTC = 'BTC-BRL'
+}
+
+export type TickerResponse = {
+  result: {
+    ticker: string
+    value: number
+  }[]
+}

@@ -15,7 +15,6 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { CreateAssetButton } from '@/app/(routes)/(private)/assets/components/create-asset'
 import { EmptyPlaceholder } from '../EmptyPlaceholder'
 
 interface DataTableProps<TData, TValue> {
@@ -83,7 +82,6 @@ export function DataTable<TData, TValue>({
                       <EmptyPlaceholder.Description>
                         Voce ainda não tem ativos. Comece adicionando um.
                       </EmptyPlaceholder.Description>
-                      <CreateAssetButton variant="outline" />
                     </EmptyPlaceholder>
                   ) : (
                     <span>No results.</span>

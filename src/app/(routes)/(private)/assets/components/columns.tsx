@@ -56,7 +56,7 @@ export const assetColumns: ColumnDef<AssetDTO>[] = [
     accessorKey: 'price',
     header: 'Cotação',
     cell: ({ row }) => {
-      const val = parseFloat(row.getValue('value'))
+      const val = parseFloat(row.getValue('price'))
       return formatCurrency(val, 'BRL')
     }
   },
@@ -68,7 +68,8 @@ export const assetColumns: ColumnDef<AssetDTO>[] = [
     accessorKey: 'value',
     header: 'Valor de Mercado',
     cell: ({ row }) => {
-      const val = parseFloat(row.getValue('value'))
+      const val =
+        parseFloat(row.getValue('price')) * parseFloat(row.getValue('amount'))
       return formatCurrency(val, 'BRL')
     }
   },

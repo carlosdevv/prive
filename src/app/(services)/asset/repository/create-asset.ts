@@ -1,58 +1,58 @@
 import { db } from '@/lib/database'
-import { getCurrentUser } from '@/lib/session'
 import { ClassEnum } from '@prisma/client'
 import { AssetProps } from '../types'
 
-export async function createAssetDB({
-  name,
-  class: classe,
-  amount,
-  value,
-  goal
-}: AssetProps) {
-  const user = await getCurrentUser()
+export class CreateAsset {
+  async execute({
+    name,
+    class: classe,
+    amount,
+    value,
+    goal,
+    userId
+  }: AssetProps) {
+    const alreadyExistsAsset = await db.asset.findFirst({
+      where: {
+        id: userId,
+        name
+      }
+    })
 
-  const alreadyExistsAsset = await db.asset.findFirst({
-    where: {
-      id: user?.id,
-      name
+    if (alreadyExistsAsset) {
+      if (classe === ClassEnum.RENDA_FIXA) {
+        await db.asset.update({
+          where: {
+            id: userId
+          },
+          data: {
+            value: alreadyExistsAsset.value! + value!
+          }
+        })
+      } else {
+        await db.asset.update({
+          where: {
+            id: userId
+          },
+          data: {
+            amount: alreadyExistsAsset.amount! + amount!
+          }
+        })
+      }
+
+      return alreadyExistsAsset
     }
-  })
 
-  if (alreadyExistsAsset) {
-    if (classe === ClassEnum.RENDA_FIXA) {
-      await db.asset.update({
-        where: {
-          id: user?.id
-        },
-        data: {
-          value: alreadyExistsAsset.value! + value!
-        }
-      })
-    } else {
-      await db.asset.update({
-        where: {
-          id: user?.id
-        },
-        data: {
-          amount: alreadyExistsAsset.amount! + amount!
-        }
-      })
-    }
+    const newAsset = await db.asset.create({
+      data: {
+        name,
+        class: classe,
+        amount,
+        value,
+        goal,
+        userId
+      }
+    })
 
-    return alreadyExistsAsset
+    return newAsset
   }
-
-  const newAsset = await db.asset.create({
-    data: {
-      name,
-      class: classe,
-      amount,
-      value,
-      goal,
-      userId: user!.id
-    }
-  })
-
-  return newAsset
 }

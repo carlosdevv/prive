@@ -37,7 +37,8 @@ import {
   Landmark,
   Wallet,
   Pencil,
-  CheckCircle2
+  CheckCircle2,
+  RotateCcw
 } from 'lucide-react'
 
 import { FcGoogle } from 'react-icons/fc'
@@ -83,5 +84,6 @@ export const Icons = {
   piggy: PiggyBank,
   bank: Landmark,
   wallet: Wallet,
-  edit: Pencil
+  edit: Pencil,
+  restart: RotateCcw
 }

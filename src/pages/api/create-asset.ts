@@ -1,18 +1,20 @@
-import { createAssetDB } from '@/app/(services)/asset/repository/create-asset'
+import { CreateAsset } from '@/app/(services)/asset/repository/create-asset'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function POST(req: NextApiRequest, res: NextApiResponse) {
-  const { name, classe, amount, value, goal } = req.body
+  const { name, class: classe, amount, value, goal, userId } = req.body
+  const creteAsset = new CreateAsset()
 
   try {
-    const asset = await createAssetDB({
+    await creteAsset.execute({
       name,
       class: classe,
       amount,
       value,
-      goal
+      goal,
+      userId
     })
-    return res.status(200).json(asset)
+    return res.status(200).json({ message: 'Ativo criado com sucesso!' })
   } catch (error: any) {
     return res.status(400).json({ message: error.message })
   }

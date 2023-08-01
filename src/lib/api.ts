@@ -14,13 +14,12 @@ api.interceptors.response.use(
   error => {
     if (error.response.status === 401) {
       NextResponse.redirect(new URL('/login', window.location.href))
+      return toast({
+        title: 'Sessão expirada.',
+        description: 'Realize seu login novamente.',
+        variant: 'destructive'
+      })
     }
-
-    return toast({
-      title: 'Sessão expirada.',
-      description: 'Realize seu login novamente.',
-      variant: 'destructive'
-    })
   }
 )
 

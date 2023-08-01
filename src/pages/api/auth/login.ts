@@ -1,4 +1,4 @@
-import { AuthenticateUser } from '@/lib/controllers/auth/auth'
+import { AuthenticateUser } from '@/app/(services)/auth/repository/auth'
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(

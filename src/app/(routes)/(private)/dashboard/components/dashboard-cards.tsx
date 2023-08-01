@@ -1,11 +1,10 @@
 'use client'
 
-import { useFetchUSDCotation } from '@/app/(services)/coin/useCoin'
+import { useFetchUSDCotation } from '@/app/(services)/asset/useAsset'
 import { Icons } from '@/components/Icons'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/utils/format'
 import { ClassEnum } from '@prisma/client'
-import { useMemo } from 'react'
 
 type DashboardCardsProps = {
   patrimony?: number | null
@@ -20,10 +19,6 @@ type DashboardCardsProps = {
 
 export function DashboardCards({ patrimony, goals }: DashboardCardsProps) {
   const { data: dollarCotation, isLoading } = useFetchUSDCotation()
-
-  const formatPatrimonyToUSD = useMemo(() => {
-    return patrimony ? patrimony * Number(dollarCotation) : 0
-  }, [])
 
   const patrimonyInBr = goals.reduce((acc, goal) => {
     if (goal.class === ClassEnum.RENDA_FIXA) {
@@ -79,7 +74,7 @@ export function DashboardCards({ patrimony, goals }: DashboardCardsProps) {
           <div className="text-2xl font-bold">{`${
             isLoading
               ? formatCurrency(0, 'USD')
-              : formatCurrency(formatPatrimonyToUSD, 'USD')
+              : formatCurrency(patrimony! * Number(dollarCotation), 'USD')
           }`}</div>
         </CardContent>
       </Card>
@@ -90,10 +85,11 @@ export function DashboardCards({ patrimony, goals }: DashboardCardsProps) {
           <Icons.piggy className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">{`${formatCurrency(
-            patrimonyInBr,
-            'BRL'
-          )}`}</div>
+          <div className="text-2xl font-bold">{`${
+            isLoading
+              ? formatCurrency(0, 'USD')
+              : formatCurrency(patrimonyInBr, 'BRL')
+          }`}</div>
         </CardContent>
       </Card>
 
@@ -104,7 +100,11 @@ export function DashboardCards({ patrimony, goals }: DashboardCardsProps) {
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">
-            {`${formatCurrency(patrimonyInUS, 'USD')}`}
+            {`${
+              isLoading
+                ? formatCurrency(0, 'USD')
+                : formatCurrency(patrimonyInUS, 'USD')
+            }`}
           </div>
         </CardContent>
       </Card>

@@ -1,8 +1,8 @@
-'use client'
-
 import * as React from 'react'
 
 import { AssetProps } from '@/app/(services)/asset/types'
+import { useCreateAsset, useFetchStocks } from '@/app/(services)/asset/useAsset'
+import { UserSession } from '@/app/(services)/user/types'
 import { Icons } from '@/components/Icons'
 import { Button, ButtonProps, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -38,9 +38,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { ClassEnum } from '@prisma/client'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-import { useCreateAsset } from '@/app/(services)/asset/useAsset'
 
-interface CreateAssetButtonProps extends ButtonProps {}
+interface CreateAssetButtonProps extends ButtonProps {
+  refetchAssets: () => void
+  user: UserSession
+}
 
 const createAssetSchema = z.object({
   name: z.string().nonempty('É necessário informar um ativo.'),
@@ -60,6 +62,8 @@ type CreateAssetFormData = z.infer<typeof createAssetSchema>
 export function CreateAssetButton({
   className,
   variant,
+  refetchAssets,
+  user,
   ...props
 }: CreateAssetButtonProps) {
   const {
@@ -72,36 +76,67 @@ export function CreateAssetButton({
     resolver: zodResolver(createAssetSchema)
   })
   const [assetClass, setAssetClass] = React.useState('RENDA_FIXA')
+  const [isErrorFetchStocks, setIsErrorFetchStocks] =
+    React.useState<boolean>(false)
 
-  const { mutate: createAsset, isLoading } = useCreateAsset({
-    onSuccess: () => {
-      toast({
-        title: 'Sucesso.',
-        description: 'Ativo criado com sucesso.'
-      })
-    },
-    onError: () => {
-      toast({
-        title: 'Something went wrong.',
-        description: 'Erro.',
-        variant: 'destructive'
-      })
+  const { mutate: createAsset, isLoading: isLoadingCreateAsset } =
+    useCreateAsset({
+      onSuccess: () => {
+        refetchAssets()
+        toast({
+          title: 'Sucesso.',
+          description: 'Ativo criado com sucesso.'
+        })
+      },
+      onError: () => {
+        toast({
+          title: 'Algo deu errado.',
+          description: 'Erro ao criar ativo.',
+          variant: 'destructive'
+        })
+      }
+    })
+
+  const {
+    mutateAsync: fetchStocks,
+    isLoading: isLoadingFetchStocks,
+    reset: resetFetchStocks
+  } = useFetchStocks({
+    onError() {
+      setIsErrorFetchStocks(true)
     }
   })
 
-  function onSubmit(data: CreateAssetFormData) {
+  async function onSubmit(data: CreateAssetFormData) {
     const isRendaFixa = assetClass === 'RENDA_FIXA'
+    const isStockClass = !isRendaFixa && assetClass !== ClassEnum.CRYPTO
 
-    const newAsset: AssetProps = {
-      name: data.name,
-      class: assetClass as ClassEnum,
-      amount: isRendaFixa ? undefined : data.amount,
-      value: isRendaFixa ? data.amount : undefined,
-      goal: data.goal
+    try {
+      if (isStockClass) {
+        await fetchStocks([data.name.toUpperCase()])
+        if (isErrorFetchStocks) {
+          resetFetchStocks()
+          throw new Error()
+        }
+      }
+
+      const newAsset: AssetProps = {
+        name: data.name,
+        class: assetClass as ClassEnum,
+        amount: isRendaFixa ? undefined : data.amount,
+        value: isRendaFixa ? data.amount : undefined,
+        goal: data.goal,
+        userId: user.id
+      }
+
+      createAsset(newAsset)
+    } catch (error) {
+      toast({
+        title: 'Algo deu errado.',
+        description: `Não encontramos a ação ${data.name.toUpperCase()}.`,
+        variant: 'destructive'
+      })
     }
-
-    createAsset(newAsset)
-    reset()
   }
 
   return (
@@ -111,6 +146,7 @@ export function CreateAssetButton({
           <button
             className={cn(buttonVariants({ variant }), className)}
             {...props}
+            onClick={() => reset()}
           >
             <Icons.add className="mr-2 h-4 w-4" />
             Novo ativo
@@ -138,10 +174,10 @@ export function CreateAssetButton({
                     <SelectGroup>
                       <SelectLabel>Classes</SelectLabel>
                       <SelectItem value="RENDA_FIXA">Renda Fixa</SelectItem>
-                      <SelectItem value="ACOES">Ações</SelectItem>
+                      <SelectItem value="ACAO">Ações</SelectItem>
                       <SelectItem value="FII">Fundos Imobiliários</SelectItem>
-                      <SelectItem value="STOCKS">Stocks</SelectItem>
-                      <SelectItem value="REITS">Reits</SelectItem>
+                      <SelectItem value="STOCK">Stocks</SelectItem>
+                      <SelectItem value="REIT">Reits</SelectItem>
                       <SelectItem value="CRYPTO">Crypto</SelectItem>
                     </SelectGroup>
                   </SelectContent>
@@ -173,7 +209,7 @@ export function CreateAssetButton({
                   placeholder={
                     assetClass === 'RENDA_FIXA'
                       ? 'Ex: Tesouro Selic'
-                      : 'Ex: PETR4 / AAPL'
+                      : 'Insira o Ticker do ativo. Ex: PETR4 / AAPL'
                   }
                 />
                 {errors.name && (
@@ -232,13 +268,14 @@ export function CreateAssetButton({
                 </Button>
               </SheetTrigger>
               <Button
+                onClick={() => setIsErrorFetchStocks(false)}
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoadingCreateAsset}
                 className={cn({
-                  'cursor-not-allowed opacity-60': isLoading
+                  'cursor-not-allowed opacity-60': isLoadingCreateAsset
                 })}
               >
-                {isLoading ? (
+                {isLoadingCreateAsset || isLoadingFetchStocks ? (
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <span>Adicionar</span>

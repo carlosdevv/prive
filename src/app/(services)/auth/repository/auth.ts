@@ -2,7 +2,7 @@ import { db } from '@/lib/database'
 
 import { compare } from 'bcryptjs'
 import { sign } from 'jsonwebtoken'
-import { IAuthenticateUserDTO, UserSecureData, UserResponse } from '../types'
+import { IAuthenticateUserDTO, UserResponse, UserSecureData } from '../types'
 
 export class AuthenticateUser {
   async execute({ email, password }: IAuthenticateUserDTO) {
@@ -28,7 +28,8 @@ export class AuthenticateUser {
       id: user.id,
       created_at: user.created_at,
       is_active: user.is_active,
-      role: user.role
+      role: user.role,
+      patrimony: user.patrimony
     }
 
     const token = sign({ user: userSecureData }, process.env.JWT_SECRET!, {

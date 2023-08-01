@@ -6,12 +6,13 @@ import { signIn } from 'next-auth/react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
+import { useCreateUser } from '@/app/(services)/user/useUser'
 import { Icons } from '@/components/Icons'
 import { buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useCreateUser } from '@/app/(services)/user/useCreateUser'
 import { cn } from '@/lib/utils'
+import { AxiosError } from 'axios'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -59,8 +60,7 @@ export function RegisterForm({ className, ...props }: RegisterFormProps) {
         description: 'O usuário foi criado com sucesso, faça seu login.'
       })
     },
-    onError: error => {
-      console.log(error.message)
+    onError: (error: AxiosError) => {
       toast({
         title: 'Algo deu errado.',
         description: error.message,

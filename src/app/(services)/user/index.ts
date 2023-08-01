@@ -1,6 +1,5 @@
 import api from '@/lib/api'
-import { CreateUserBody } from './types'
-import { UserSecureData } from '@/lib/controllers/user/types'
+import { CreateUserBody, UserSecureData } from './types'
 
 export const createUser = async (body: CreateUserBody) => {
   const url = '/api/register'
@@ -13,7 +12,8 @@ export const createUser = async (body: CreateUserBody) => {
     email: data.email,
     created_at: data.created_at,
     is_active: data.is_active,
-    role: data.role
+    role: data.role,
+    patrimony: data.patrimony
   }
 
   return formmatData
