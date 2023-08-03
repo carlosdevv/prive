@@ -6,8 +6,8 @@ import {
   useMutation,
   useQuery
 } from 'react-query'
-import { createAsset, fetchBTCCotation, fetchStocks, fetchUSDCotation } from '.'
-import { CreateAssetBody, TickerResponse } from './types'
+import { createAsset, fetchCryptos, fetchStocks, fetchUSDCotation } from '.'
+import { CreateAssetBody, CryptoResponse, TickerResponse } from './types'
 
 export const useCreateAsset = (
   options?: UseMutationOptions<void, AxiosError, CreateAssetBody>
@@ -22,16 +22,16 @@ export const useFetchUSDCotation = (
     ...options
   })
 
-export const useFetchBTCCotation = (
-  options?: UseQueryOptions<string, AxiosError>
+export const useFetchCryptos = (
+  options?: MutationOptions<CryptoResponse, AxiosError, string[]>
 ) =>
-  useQuery<string, AxiosError>(['cotation-btc'], () => fetchBTCCotation(), {
+  useMutation(['cryptos'], fetchCryptos, {
     ...options
   })
 
 export const useFetchStocks = (
   options?: MutationOptions<TickerResponse, AxiosError, string[]>
 ) =>
-  useMutation(['acoes'], fetchStocks, {
+  useMutation(['stocks'], fetchStocks, {
     ...options
   })

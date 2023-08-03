@@ -1,7 +1,11 @@
 import * as React from 'react'
 
 import { AssetProps } from '@/app/(services)/asset/types'
-import { useCreateAsset, useFetchStocks } from '@/app/(services)/asset/useAsset'
+import {
+  useCreateAsset,
+  useFetchCryptos,
+  useFetchStocks
+} from '@/app/(services)/asset/useAsset'
 import { UserSession } from '@/app/(services)/user/types'
 import { Icons } from '@/components/Icons'
 import { Button, ButtonProps, buttonVariants } from '@/components/ui/button'
@@ -47,9 +51,8 @@ interface CreateAssetButtonProps extends ButtonProps {
 const createAssetSchema = z.object({
   name: z.string().nonempty('É necessário informar um ativo.'),
   amount: z.coerce
-    .number()
-    .nonnegative('Insira um valor positivo.')
-    .min(1, 'É necessário informar um valor.'),
+    .number({ invalid_type_error: 'Apenas números são permitidos.' })
+    .nonnegative('Insira um valor positivo.'),
   goal: z.coerce
     .number()
     .nonnegative('A meta deve ser positiva.')
@@ -76,7 +79,7 @@ export function CreateAssetButton({
     resolver: zodResolver(createAssetSchema)
   })
   const [assetClass, setAssetClass] = React.useState('RENDA_FIXA')
-  const [isErrorFetchStocks, setIsErrorFetchStocks] =
+  const [isErrorFetchAssetPrice, setIsErrorFetchAssetPrice] =
     React.useState<boolean>(false)
 
   const { mutate: createAsset, isLoading: isLoadingCreateAsset } =
@@ -103,18 +106,36 @@ export function CreateAssetButton({
     reset: resetFetchStocks
   } = useFetchStocks({
     onError() {
-      setIsErrorFetchStocks(true)
+      setIsErrorFetchAssetPrice(true)
+    }
+  })
+
+  const {
+    mutateAsync: fetchCryptos,
+    isLoading: isLoadingFetchCryptos,
+    reset: resetFetchCryptos
+  } = useFetchCryptos({
+    onError() {
+      setIsErrorFetchAssetPrice(true)
     }
   })
 
   async function onSubmit(data: CreateAssetFormData) {
     const isRendaFixa = assetClass === 'RENDA_FIXA'
     const isStockClass = !isRendaFixa && assetClass !== ClassEnum.CRYPTO
+    const isCryptoClass = assetClass === ClassEnum.CRYPTO
 
     try {
+      if (isCryptoClass) {
+        await fetchCryptos([data.name.toUpperCase()])
+        if (isErrorFetchAssetPrice) {
+          resetFetchCryptos()
+          throw new Error()
+        }
+      }
       if (isStockClass) {
         await fetchStocks([data.name.toUpperCase()])
-        if (isErrorFetchStocks) {
+        if (isErrorFetchAssetPrice) {
           resetFetchStocks()
           throw new Error()
         }
@@ -133,7 +154,7 @@ export function CreateAssetButton({
     } catch (error) {
       toast({
         title: 'Algo deu errado.',
-        description: `Não encontramos a ação ${data.name.toUpperCase()}.`,
+        description: `Não encontramos o ativo ${data.name.toUpperCase()}.`,
         variant: 'destructive'
       })
     }
@@ -231,7 +252,8 @@ export function CreateAssetButton({
                       ? 'Valor do ativo (R$)'
                       : 'Quantidade do ativo'
                   }
-                  type="number"
+                  type="string"
+                  onlyNumbers
                 />
                 {errors.amount && (
                   <p className="px-1 text-xs text-red-600">
@@ -268,14 +290,16 @@ export function CreateAssetButton({
                 </Button>
               </SheetTrigger>
               <Button
-                onClick={() => setIsErrorFetchStocks(false)}
+                onClick={() => setIsErrorFetchAssetPrice(false)}
                 type="submit"
                 disabled={isLoadingCreateAsset}
                 className={cn({
                   'cursor-not-allowed opacity-60': isLoadingCreateAsset
                 })}
               >
-                {isLoadingCreateAsset || isLoadingFetchStocks ? (
+                {isLoadingCreateAsset ||
+                isLoadingFetchStocks ||
+                isLoadingFetchCryptos ? (
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
                   <span>Adicionar</span>

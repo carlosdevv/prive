@@ -14,7 +14,8 @@ export class CreateAsset {
     const alreadyExistsAsset = await db.asset.findFirst({
       where: {
         id: userId,
-        name
+        name: name,
+        class: classe
       }
     })
 
@@ -25,7 +26,8 @@ export class CreateAsset {
             id: userId
           },
           data: {
-            value: alreadyExistsAsset.value! + value!
+            value: alreadyExistsAsset.value! + value!,
+            goal: alreadyExistsAsset.goal!
           }
         })
       } else {
@@ -34,7 +36,8 @@ export class CreateAsset {
             id: userId
           },
           data: {
-            amount: alreadyExistsAsset.amount! + amount!
+            amount: alreadyExistsAsset.amount! + amount!,
+            goal: alreadyExistsAsset.goal!
           }
         })
       }

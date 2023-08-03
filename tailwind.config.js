@@ -1,26 +1,21 @@
-const { fontFamily } = require('tailwindcss/defaultTheme')
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: ['class'],
   content: [
-    './src/**/*.{js,jsx,ts,tsx}',
     './pages/**/*.{ts,tsx}',
     './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx}'
+    './app/**/*.{ts,tsx}',
+    './src/**/*.{ts,tsx}'
   ],
   theme: {
     container: {
       center: true,
       padding: '2rem',
       screens: {
-        '2xl': '1440px'
+        '2xl': '1400px'
       }
     },
     extend: {
-      fontFamily: {
-        sans: ['var(--font-inter)', ...fontFamily.sans],
-        heading: ['var(--font-heading)', ...fontFamily.sans]
-      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -77,5 +72,5 @@ module.exports = {
       }
     }
   },
-  plugins: [require('tailwindcss-animate'), require('@tailwindcss/typography')]
+  plugins: [require('tailwindcss-animate')]
 }

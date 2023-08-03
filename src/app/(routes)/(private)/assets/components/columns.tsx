@@ -1,7 +1,20 @@
 'use client'
 
 import { AssetDTO } from '@/app/(services)/asset/types'
+import { Icons } from '@/components/Icons'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/utils/format'
 import { ColumnDef } from '@tanstack/react-table'
 
@@ -102,6 +115,34 @@ export const assetColumns: ColumnDef<AssetDTO>[] = [
         return <Badge className="bg-green-400 justify-center">Buy</Badge>
       }
       return <Badge className="bg-amber-400 justify-center">Hold</Badge>
+    }
+  },
+  {
+    header: 'Opções',
+    cell: ({ row }) => {
+      return (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant={'ghost'}>
+              <Icons.trash size={20} className="text-red-400" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir ativo</AlertDialogTitle>
+              <AlertDialogDescription>
+                Tem deseja que deseja excluir esse ativo.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction className="bg-red-400">
+                Excluir
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )
     }
   }
 ]

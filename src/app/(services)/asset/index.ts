@@ -1,5 +1,5 @@
 import api from '@/lib/api'
-import { CreateAssetBody, TickerResponse } from './types'
+import { CreateAssetBody, CryptoResponse, TickerResponse } from './types'
 
 export const createAsset = async (body: CreateAssetBody) => {
   const url = '/api/create-asset'
@@ -19,16 +19,28 @@ export const fetchUSDCotation = async () => {
   return formmatedData.value
 }
 
-export const fetchBTCCotation = async () => {
-  const url = `https://economia.awesomeapi.com.br/last/BTC-BRL`
+export const fetchCryptos = async (coins: string[]) => {
+  const url = `https://brapi.dev/api/v2/crypto`
 
-  const { data } = await api.get(url)
-
-  const formmatedData = {
-    value: data.BTCBRL.ask
+  const queryParams = {
+    coin: coins.toString(),
+    currency: 'BRL'
   }
 
-  return formmatedData.value
+  const { data } = await api.get(url, {
+    params: queryParams
+  })
+
+  const formmatedData: CryptoResponse = {
+    coins: coins.map((coin, index) => {
+      return {
+        coin,
+        value: data.coins[index].regularMarketPrice
+      }
+    })
+  }
+
+  return formmatedData
 }
 
 export const fetchStocks = async (tickers: string[]) => {

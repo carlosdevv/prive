@@ -34,3 +34,10 @@ export type TickerResponse = {
     value: number
   }[]
 }
+
+export type CryptoResponse = {
+  coins: {
+    coin: string
+    value: number
+  }[]
+}

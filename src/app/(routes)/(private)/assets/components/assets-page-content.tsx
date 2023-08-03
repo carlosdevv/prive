@@ -2,7 +2,10 @@
 
 import { handleGetAssets } from '@/app/(services)/asset/repository/get-assets'
 import { AssetDTO } from '@/app/(services)/asset/types'
-import { useFetchStocks } from '@/app/(services)/asset/useAsset'
+import {
+  useFetchCryptos,
+  useFetchStocks
+} from '@/app/(services)/asset/useAsset'
 import { UserSession } from '@/app/(services)/user/types'
 import { Header } from '@/components/Header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -19,17 +22,27 @@ type AssetsTableProps = {
 export default function AssetsPageContent({ assets, user }: AssetsTableProps) {
   const [assetsList, setAssetsList] = useState<Asset[]>(assets)
 
-  const handleGetStockPrices = async () => {
+  const handleGetAssetsPrices = async () => {
+    const cryptoAssets = assetsList
+      .filter(item => item.class === ClassEnum.CRYPTO)
+      .map(item => item.name)
+
     const stockAssets = assetsList
       .filter(item => item.class !== (ClassEnum.RENDA_FIXA && ClassEnum.CRYPTO))
       .map(item => item.name)
 
     if (stockAssets.length > 0) {
+      console.log(stockAssets[0])
       await fetchStocks(stockAssets)
+    }
+
+    if (cryptoAssets.length > 0) {
+      await fetchCryptos(cryptoAssets)
     }
   }
 
-  const { mutateAsync: fetchStocks, data: fetchStockData } = useFetchStocks({})
+  const { mutateAsync: fetchStocks, data: fetchStockData } = useFetchStocks()
+  const { mutateAsync: fetchCryptos, data: fetchCryptoData } = useFetchCryptos()
 
   const refetchAssets = useCallback(async () => {
     const refetchedAssets = await handleGetAssets(user)
@@ -54,12 +67,32 @@ export default function AssetsPageContent({ assets, user }: AssetsTableProps) {
       const isRendaFixa =
         asset && asset.some(asset => asset.class === ClassEnum.RENDA_FIXA)
 
+      const isCryptoAsset =
+        asset && asset.some(asset => asset.class === ClassEnum.CRYPTO)
+
       const formattedAssets: AssetDTO[] = asset.map(asset => {
         if (isRendaFixa) {
           return {
             name: asset.name,
             value: asset.value,
             goal: asset.goal,
+            currentGoal: 0,
+            dif: 0,
+            aporte: 0,
+            isBuy: false
+          }
+        }
+
+        if (isCryptoAsset) {
+          return {
+            name: asset.name.toUpperCase(),
+            amount: asset.amount,
+            goal: asset.goal,
+            price:
+              (fetchCryptoData &&
+                fetchCryptoData.coins.find(item => item.coin === asset.name)
+                  ?.value) ||
+              0,
             currentGoal: 0,
             dif: 0,
             aporte: 0,
@@ -85,11 +118,11 @@ export default function AssetsPageContent({ assets, user }: AssetsTableProps) {
 
       return formattedAssets
     },
-    [fetchStockData, assetsList]
+    [fetchStockData, fetchCryptoData]
   )
 
   useEffect(() => {
-    handleGetStockPrices()
+    handleGetAssetsPrices()
   }, [assetsList])
 
   const TabsData = {

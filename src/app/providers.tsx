@@ -1,5 +1,6 @@
 'use client'
 
+import { AppProvider } from '@/contexts/useAppContext'
 import { SessionProvider } from 'next-auth/react'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
 import { ThemeProviderProps } from 'next-themes/dist/types'
@@ -22,7 +23,9 @@ const Providers = ({ children }: Props) => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <SessionProvider>{children}</SessionProvider>
+        <SessionProvider>
+          <AppProvider>{children}</AppProvider>
+        </SessionProvider>
       </ThemeProvider>
     </QueryClientProvider>
   )
