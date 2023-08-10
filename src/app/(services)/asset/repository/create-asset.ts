@@ -13,7 +13,7 @@ export class CreateAsset {
   }: AssetProps) {
     const alreadyExistsAsset = await db.asset.findFirst({
       where: {
-        id: userId,
+        userId: userId,
         name: name,
         class: classe
       }
@@ -23,21 +23,21 @@ export class CreateAsset {
       if (classe === ClassEnum.RENDA_FIXA) {
         await db.asset.update({
           where: {
-            id: userId
+            id: alreadyExistsAsset.id
           },
           data: {
             value: alreadyExistsAsset.value! + value!,
-            goal: alreadyExistsAsset.goal!
+            goal: goal
           }
         })
       } else {
         await db.asset.update({
           where: {
-            id: userId
+            id: alreadyExistsAsset.id
           },
           data: {
             amount: alreadyExistsAsset.amount! + amount!,
-            goal: alreadyExistsAsset.goal!
+            goal: goal
           }
         })
       }

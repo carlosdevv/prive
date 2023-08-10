@@ -1,10 +1,36 @@
 import api from '@/lib/api'
-import { CreateAssetBody, CryptoResponse, TickerResponse } from './types'
+import {
+  CommonResponse,
+  CreateAssetBody,
+  CryptoResponse,
+  DeleteAssetParams,
+  TickerResponse,
+  UpdateAssetParams
+} from './types'
 
 export const createAsset = async (body: CreateAssetBody) => {
-  const url = '/api/create-asset'
+  const url = '/api/asset/create'
 
-  await api.post(url, body)
+  await api.post<CommonResponse>(url, body)
+}
+
+export const deleteAsset = async ({ name, userId }: DeleteAssetParams) => {
+  const url = '/api/asset/delete'
+
+  const queryParams = {
+    name: name,
+    userId: userId
+  }
+
+  await api.delete(url, {
+    params: queryParams
+  })
+}
+
+export const updateAsset = async (body: UpdateAssetParams) => {
+  const url = '/api/asset/update'
+
+  await api.patch(url, body)
 }
 
 export const fetchUSDCotation = async () => {

@@ -1,12 +1,11 @@
-import { handleGetAssets } from '@/app/(services)/asset/repository/get-assets'
 import { LayoutPage } from '@/components/LayoutPage'
-import AssetsPageContent from './components/assets-page-content'
 import { getCurrentUser } from '@/lib/session'
+import { GetAssets } from './actions/assets'
+import AssetsPageContent from './components/assets-content'
 
 export default async function AssetsPage() {
   const user = await getCurrentUser()
-
-  const assets = await handleGetAssets(user!)
+  const assets = await GetAssets(user!)
 
   return (
     <LayoutPage>

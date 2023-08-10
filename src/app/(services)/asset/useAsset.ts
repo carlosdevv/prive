@@ -6,13 +6,38 @@ import {
   useMutation,
   useQuery
 } from 'react-query'
-import { createAsset, fetchCryptos, fetchStocks, fetchUSDCotation } from '.'
-import { CreateAssetBody, CryptoResponse, TickerResponse } from './types'
+import {
+  createAsset,
+  deleteAsset,
+  fetchCryptos,
+  fetchStocks,
+  fetchUSDCotation,
+  updateAsset
+} from '.'
+import {
+  CreateAssetBody,
+  CryptoResponse,
+  DeleteAssetParams,
+  TickerResponse,
+  UpdateAssetParams
+} from './types'
 
 export const useCreateAsset = (
   options?: UseMutationOptions<void, AxiosError, CreateAssetBody>
 ) => {
   return useMutation(createAsset, { ...options })
+}
+
+export const useUpdateAsset = (
+  options?: UseMutationOptions<void, AxiosError, UpdateAssetParams>
+) => {
+  return useMutation(updateAsset, { ...options })
+}
+
+export const useDeleteAsset = (
+  options?: UseMutationOptions<void, AxiosError, DeleteAssetParams>
+) => {
+  return useMutation(deleteAsset, { ...options })
 }
 
 export const useFetchUSDCotation = (

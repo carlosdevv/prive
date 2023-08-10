@@ -1,12 +1,3 @@
-import * as React from 'react'
-
-import { AssetProps } from '@/app/(services)/asset/types'
-import {
-  useCreateAsset,
-  useFetchCryptos,
-  useFetchStocks
-} from '@/app/(services)/asset/useAsset'
-import { UserSession } from '@/app/(services)/user/types'
 import { Icons } from '@/components/Icons'
 import { Button, ButtonProps, buttonVariants } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,133 +27,39 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { toast } from '@/hooks/useToast'
 import { cn } from '@/lib/utils'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { ClassEnum } from '@prisma/client'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
+import { useCreateAssetComponent } from '../actions/use-create-asset'
 
 interface CreateAssetButtonProps extends ButtonProps {
   refetchAssets: () => void
-  user: UserSession
 }
-
-const createAssetSchema = z.object({
-  name: z.string().nonempty('É necessário informar um ativo.'),
-  amount: z.coerce
-    .number({ invalid_type_error: 'Apenas números são permitidos.' })
-    .nonnegative('Insira um valor positivo.'),
-  goal: z.coerce
-    .number()
-    .nonnegative('A meta deve ser positiva.')
-    .min(1, 'É necessário informar o objetivo')
-    .max(100, 'O objetivo deve ter no máximo 100%.')
-})
-
-type CreateAssetFormData = z.infer<typeof createAssetSchema>
 
 export function CreateAssetButton({
   className,
   variant,
   refetchAssets,
-  user,
   ...props
 }: CreateAssetButtonProps) {
   const {
-    register,
-    handleSubmit,
-    clearErrors,
+    isOpenSheet,
+    setIsOpenSheet,
     reset,
-    formState: { errors }
-  } = useForm<CreateAssetFormData>({
-    resolver: zodResolver(createAssetSchema)
-  })
-  const [assetClass, setAssetClass] = React.useState('RENDA_FIXA')
-  const [isErrorFetchAssetPrice, setIsErrorFetchAssetPrice] =
-    React.useState<boolean>(false)
-
-  const { mutate: createAsset, isLoading: isLoadingCreateAsset } =
-    useCreateAsset({
-      onSuccess: () => {
-        refetchAssets()
-        toast({
-          title: 'Sucesso.',
-          description: 'Ativo criado com sucesso.'
-        })
-      },
-      onError: () => {
-        toast({
-          title: 'Algo deu errado.',
-          description: 'Erro ao criar ativo.',
-          variant: 'destructive'
-        })
-      }
-    })
-
-  const {
-    mutateAsync: fetchStocks,
-    isLoading: isLoadingFetchStocks,
-    reset: resetFetchStocks
-  } = useFetchStocks({
-    onError() {
-      setIsErrorFetchAssetPrice(true)
-    }
-  })
-
-  const {
-    mutateAsync: fetchCryptos,
-    isLoading: isLoadingFetchCryptos,
-    reset: resetFetchCryptos
-  } = useFetchCryptos({
-    onError() {
-      setIsErrorFetchAssetPrice(true)
-    }
-  })
-
-  async function onSubmit(data: CreateAssetFormData) {
-    const isRendaFixa = assetClass === 'RENDA_FIXA'
-    const isStockClass = !isRendaFixa && assetClass !== ClassEnum.CRYPTO
-    const isCryptoClass = assetClass === ClassEnum.CRYPTO
-
-    try {
-      if (isCryptoClass) {
-        await fetchCryptos([data.name.toUpperCase()])
-        if (isErrorFetchAssetPrice) {
-          resetFetchCryptos()
-          throw new Error()
-        }
-      }
-      if (isStockClass) {
-        await fetchStocks([data.name.toUpperCase()])
-        if (isErrorFetchAssetPrice) {
-          resetFetchStocks()
-          throw new Error()
-        }
-      }
-
-      const newAsset: AssetProps = {
-        name: data.name,
-        class: assetClass as ClassEnum,
-        amount: isRendaFixa ? undefined : data.amount,
-        value: isRendaFixa ? data.amount : undefined,
-        goal: data.goal,
-        userId: user.id
-      }
-
-      createAsset(newAsset)
-    } catch (error) {
-      toast({
-        title: 'Algo deu errado.',
-        description: `Não encontramos o ativo ${data.name.toUpperCase()}.`,
-        variant: 'destructive'
-      })
-    }
-  }
+    handleSubmit,
+    onSubmit,
+    assetClass,
+    setAssetClass,
+    register,
+    errors,
+    clearErrors,
+    setIsErrorFetchAssetPrice,
+    isLoadingCreateAsset,
+    isLoadingFetchStocks,
+    isLoadingFetchCryptos
+  } = useCreateAssetComponent({ refetchAssets })
 
   return (
     <>
-      <Sheet>
+      <Sheet open={isOpenSheet} onOpenChange={setIsOpenSheet}>
         <SheetTrigger asChild>
           <button
             className={cn(buttonVariants({ variant }), className)}
@@ -280,15 +177,16 @@ export function CreateAssetButton({
             </section>
 
             <SheetFooter className="mt-6">
-              <SheetTrigger>
-                <Button
-                  type="button"
-                  variant={'outline'}
-                  onClick={() => clearErrors()}
-                >
-                  Cancelar
-                </Button>
-              </SheetTrigger>
+              <Button
+                type="button"
+                variant={'outline'}
+                onClick={() => {
+                  clearErrors()
+                  setIsOpenSheet(false)
+                }}
+              >
+                Cancelar
+              </Button>
               <Button
                 onClick={() => setIsErrorFetchAssetPrice(false)}
                 type="submit"

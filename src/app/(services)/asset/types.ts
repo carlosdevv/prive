@@ -1,5 +1,9 @@
 import { ClassEnum } from '@prisma/client'
 
+export type CommonResponse = {
+  message: string
+}
+
 export type AssetProps = {
   name: string
   class: ClassEnum
@@ -40,4 +44,16 @@ export type CryptoResponse = {
     coin: string
     value: number
   }[]
+}
+
+export type DeleteAssetParams = {
+  name: string
+  userId: string
+}
+
+export type UpdateAssetParams = {
+  name: string
+  userId: string
+  value: number
+  goal: number
 }

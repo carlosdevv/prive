@@ -1,22 +1,10 @@
 'use client'
 
 import { AssetDTO } from '@/app/(services)/asset/types'
-import { Icons } from '@/components/Icons'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/utils/format'
 import { ColumnDef } from '@tanstack/react-table'
+import { UpdateAssetButton } from './update-asset'
 
 export const rendaFixaColumns: ColumnDef<AssetDTO>[] = [
   {
@@ -56,6 +44,22 @@ export const rendaFixaColumns: ColumnDef<AssetDTO>[] = [
         return <Badge className="bg-green-400 justify-center">Buy</Badge>
       }
       return <Badge className="bg-amber-400 justify-center">Hold</Badge>
+    }
+  },
+  {
+    header: 'Opções',
+    cell: ({ row }) => {
+      const assetName = row.original.name
+      const assetValue = row.original.value as number
+      const assetGoal = row.original.goal as number
+      return (
+        <UpdateAssetButton
+          assetName={assetName}
+          assetValue={assetValue}
+          assetGoal={assetGoal}
+          isRendaFixa={true}
+        />
+      )
     }
   }
 ]
@@ -120,28 +124,16 @@ export const assetColumns: ColumnDef<AssetDTO>[] = [
   {
     header: 'Opções',
     cell: ({ row }) => {
+      const assetName = row.original.name
+      const assetValue = row.original.amount as number
+      const assetGoal = row.original.goal as number
       return (
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant={'ghost'}>
-              <Icons.trash size={20} className="text-red-400" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Excluir ativo</AlertDialogTitle>
-              <AlertDialogDescription>
-                Tem deseja que deseja excluir esse ativo.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction className="bg-red-400">
-                Excluir
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <UpdateAssetButton
+          assetName={assetName}
+          assetValue={assetValue}
+          assetGoal={assetGoal}
+          isRendaFixa={false}
+        />
       )
     }
   }

@@ -37,11 +37,9 @@ export function UserAccountNav({ user, items }: UserAccountNavProps) {
           </div>
         </div>
         <DropdownMenuSeparator />
-        {items?.map((item, index) => (
-          <DropdownMenuItem asChild>
-            <Link key={item.href} href={item.disabled ? '/' : item.href!}>
-              {item.title}
-            </Link>
+        {items?.map(item => (
+          <DropdownMenuItem key={item.href} asChild>
+            <Link href={item.disabled ? '/' : item.href!}>{item.title}</Link>
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
