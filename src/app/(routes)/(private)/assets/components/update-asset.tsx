@@ -37,9 +37,7 @@ export function UpdateAssetButton({
 }: EditAssetButtonProps) {
   const {
     isOpenAlertDialog,
-    setIsOpenAlertDialog,
     isOpenSheet,
-    setIsOpenSheet,
     reset,
     handleSubmit,
     onSubmit,
@@ -47,12 +45,16 @@ export function UpdateAssetButton({
     errors,
     isUpdatingAsset,
     isDeletingAsset,
-    handleRemoveAsset
+    handleRemoveAsset,
+    handleOpenDeleteSheet,
+    handleOpenSheet,
+    handleCloseSheet,
+    handleCloseDeleteSheet
   } = useUpdateAssetComponent({ assetName, assetGoal, assetValue })
 
   return (
-    <AlertDialog open={isOpenAlertDialog} onOpenChange={setIsOpenAlertDialog}>
-      <Sheet open={isOpenSheet} onOpenChange={setIsOpenSheet}>
+    <AlertDialog open={isOpenAlertDialog} onOpenChange={handleOpenDeleteSheet}>
+      <Sheet open={isOpenSheet} onOpenChange={handleOpenSheet}>
         <SheetTrigger asChild>
           <Button variant="ghost" onClick={() => reset()}>
             <Icons.edit size={16} />
@@ -111,12 +113,12 @@ export function UpdateAssetButton({
             <div className="flex justify-between items-end">
               <Button
                 className="bg-red-400 text-white hover:bg-red-500"
-                onClick={() => setIsOpenAlertDialog(true)}
+                onClick={() => handleOpenDeleteSheet()}
               >
                 Apagar ativo
               </Button>
               <SheetFooter className="mt-6">
-                <Button variant="outline" onClick={() => setIsOpenSheet(false)}>
+                <Button variant="outline" onClick={() => handleCloseSheet()}>
                   Cancelar
                 </Button>
 
@@ -139,10 +141,7 @@ export function UpdateAssetButton({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsOpenAlertDialog(false)}
-            >
+            <Button variant="outline" onClick={() => handleCloseDeleteSheet()}>
               Cancelar
             </Button>
             <Button

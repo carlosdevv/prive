@@ -1,5 +1,5 @@
 import { Icons } from '@/components/Icons'
-import { Button, ButtonProps, buttonVariants } from '@/components/ui/button'
+import { Button, ButtonProps } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -34,15 +34,9 @@ interface CreateAssetButtonProps extends ButtonProps {
   refetchAssets: () => void
 }
 
-export function CreateAssetButton({
-  className,
-  variant,
-  refetchAssets,
-  ...props
-}: CreateAssetButtonProps) {
+export function CreateAssetButton({ refetchAssets }: CreateAssetButtonProps) {
   const {
     isOpenSheet,
-    setIsOpenSheet,
     reset,
     handleSubmit,
     onSubmit,
@@ -54,21 +48,19 @@ export function CreateAssetButton({
     setIsErrorFetchAssetPrice,
     isLoadingCreateAsset,
     isLoadingFetchStocks,
-    isLoadingFetchCryptos
+    isLoadingFetchCryptos,
+    handleCloseSheet,
+    handleOpenSheet
   } = useCreateAssetComponent({ refetchAssets })
 
   return (
     <>
-      <Sheet open={isOpenSheet} onOpenChange={setIsOpenSheet}>
+      <Sheet open={isOpenSheet} onOpenChange={handleOpenSheet}>
         <SheetTrigger asChild>
-          <button
-            className={cn(buttonVariants({ variant }), className)}
-            {...props}
-            onClick={() => reset()}
-          >
-            <Icons.add className="mr-2 h-4 w-4" />
+          <Button className="gap-2" onClick={() => reset()}>
+            <Icons.add size={16} />
             Novo ativo
-          </button>
+          </Button>
         </SheetTrigger>
         <SheetContent position="right" size="default">
           <SheetHeader>
@@ -182,7 +174,7 @@ export function CreateAssetButton({
                 variant={'outline'}
                 onClick={() => {
                   clearErrors()
-                  setIsOpenSheet(false)
+                  handleCloseSheet()
                 }}
               >
                 Cancelar

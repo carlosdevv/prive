@@ -6,9 +6,11 @@ import {
 } from '@/app/(services)/asset/useAsset'
 import { useAppContext } from '@/contexts/useAppContext'
 import { toast } from '@/hooks/useToast'
+import { ROUTES } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ClassEnum } from '@prisma/client'
-import React from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -43,17 +45,19 @@ export const useCreateAssetComponent = ({
     resolver: zodResolver(createAssetSchema)
   })
 
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const { userProps: user } = useAppContext()
-  const [assetClass, setAssetClass] = React.useState('RENDA_FIXA')
+  const [assetClass, setAssetClass] = useState('RENDA_FIXA')
   const [isErrorFetchAssetPrice, setIsErrorFetchAssetPrice] =
-    React.useState<boolean>(false)
-  const [isOpenSheet, setIsOpenSheet] = React.useState<boolean>(false)
+    useState<boolean>(false)
+  const isOpenSheet: boolean = searchParams?.get('create-asset') ? true : false
 
   const { mutate: createAsset, isLoading: isLoadingCreateAsset } =
     useCreateAsset({
-      onSuccess: async () => {
-        await refetchAssets()
-        setIsOpenSheet(false)
+      onSuccess: () => {
+        refetchAssets()
+        handleCloseSheet()
         toast({
           title: 'Sucesso.',
           description: 'Ativo criado com sucesso.'
@@ -88,6 +92,13 @@ export const useCreateAssetComponent = ({
     }
   })
 
+  const handleOpenSheet = useCallback(
+    () => router.push(`${ROUTES.ASSETS}?create-asset=true`),
+    []
+  )
+
+  const handleCloseSheet = useCallback(() => router.push(ROUTES.ASSETS), [])
+
   async function onSubmit(data: CreateAssetFormData) {
     const isRendaFixa = assetClass === 'RENDA_FIXA'
     const isStockClass = !isRendaFixa && assetClass !== ClassEnum.CRYPTO
@@ -117,7 +128,7 @@ export const useCreateAssetComponent = ({
         amount: isRendaFixa ? undefined : data.amount,
         value: isRendaFixa ? data.amount : undefined,
         goal: data.goal,
-        userId: user!.id
+        userId: user?.id ?? ''
       }
 
       createAsset(newAsset)
@@ -131,7 +142,6 @@ export const useCreateAssetComponent = ({
   }
   return {
     isOpenSheet,
-    setIsOpenSheet,
     reset,
     handleSubmit,
     onSubmit,
@@ -143,6 +153,8 @@ export const useCreateAssetComponent = ({
     setIsErrorFetchAssetPrice,
     isLoadingCreateAsset,
     isLoadingFetchStocks,
-    isLoadingFetchCryptos
+    isLoadingFetchCryptos,
+    handleOpenSheet,
+    handleCloseSheet
   }
 }

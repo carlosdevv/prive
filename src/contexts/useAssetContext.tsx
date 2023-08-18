@@ -14,11 +14,19 @@ import {
 } from 'react'
 import { useAppContext } from './useAppContext'
 
+export type AssetInfoManagerProps = {
+  investmentValue: number
+  investmentClassAmount: number
+  investmentAssetsAmount: number
+}
+
 type AssetContextType = {
   assetsList: Asset[]
   setAssetsList: Dispatch<SetStateAction<Asset[]>>
   refetchAssets: () => Promise<void>
   handleSetPatrimonyValue: (value: number) => void
+  assetInfoManagerProps: AssetInfoManagerProps
+  setAssetInfoManagerProps: Dispatch<SetStateAction<AssetInfoManagerProps>>
 }
 
 type AssetProviderProps = {
@@ -32,15 +40,27 @@ export const AssetContext = createContext<AssetContextType>(
 export const AssetProvider = ({ children }: AssetProviderProps) => {
   const { setPatrimonyValue, userProps } = useAppContext()
   const [assetsList, setAssetsList] = useState<Asset[]>([])
+  const [assetInfoManagerProps, setAssetInfoManagerProps] =
+    useState<AssetInfoManagerProps>({
+      investmentValue: 1000,
+      investmentClassAmount: 1,
+      investmentAssetsAmount: 1
+    })
 
   const refetchAssets = useCallback(async () => {
-    const refetchedAssets = await GetAssets(userProps!)
+    if (!userProps) return
+
+    const refetchedAssets = await GetAssets(userProps)
     setAssetsList(refetchedAssets)
   }, [])
 
   const handleSetPatrimonyValue = useCallback(async (value: number) => {
-    setPatrimonyValue(value)
-    await SetPatrimony(userProps!, value)
+    if (!userProps) return
+
+    if (userProps.patrimony !== value) {
+      setPatrimonyValue(value)
+      await SetPatrimony(userProps, value)
+    }
   }, [])
 
   return (
@@ -49,7 +69,9 @@ export const AssetProvider = ({ children }: AssetProviderProps) => {
         assetsList,
         setAssetsList,
         refetchAssets,
-        handleSetPatrimonyValue
+        handleSetPatrimonyValue,
+        assetInfoManagerProps,
+        setAssetInfoManagerProps
       }}
     >
       {children}

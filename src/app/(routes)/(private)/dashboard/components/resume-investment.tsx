@@ -5,32 +5,20 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { formatCurrency } from '@/utils/format'
-import { useState } from 'react'
 import UpdateGoalDialog from './update-goal-dialog'
 
 type ResumeInvestmentProps = {
   title: string
-  value: number | null
-  finalGoal?: number
+  value: number | null | undefined
   meta?: number | null
 }
 
 export default function ResumeInvestment({
   title,
   value,
-  finalGoal,
   meta
 }: ResumeInvestmentProps) {
   const { data: dollarCotation, isLoading } = useFetchUSDCotation()
-
-  const [isEditingMode, setIsEditingMode] = useState<boolean>(false)
-  const [goal, setGoal] = useState<number>(finalGoal || 0)
-
-  function handleChangeGoal() {
-    setIsEditingMode(!isEditingMode)
-    setGoal(10)
-    console.log('click')
-  }
 
   return (
     <section className="flex-col mt-2 mb-6">
@@ -51,7 +39,7 @@ export default function ResumeInvestment({
               isLoading
                 ? formatCurrency(0, 'USD').toString()
                 : formatCurrency(
-                    value! * Number(dollarCotation),
+                    (value ?? 0) * Number(dollarCotation),
                     'USD'
                   ).toString()
             }
@@ -59,11 +47,7 @@ export default function ResumeInvestment({
         </div>
         <div className="flex flex-col gap-2">
           <Label className="text-muted-foreground">Atual</Label>
-          <Input
-            disabled
-            value={goal}
-            hasRightIcon={() => <Icons.percent size={20} />}
-          />
+          <Input disabled hasRightIcon={() => <Icons.percent size={20} />} />
         </div>
         <div className="flex flex-col gap-2">
           <Label className="text-muted-foreground">Meta</Label>
@@ -71,10 +55,8 @@ export default function ResumeInvestment({
             min={1}
             max={3}
             placeholder="Meta"
-            disabled={!isEditingMode}
-            value={Math.floor(meta!) || 0}
+            value={Math.floor(meta || 0)}
             hasRightIcon={() => <Icons.percent size={20} />}
-            className={isEditingMode ? 'border border-foreground' : ''}
           />
         </div>
         <div className="flex flex-col gap-4">

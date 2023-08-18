@@ -1,17 +1,14 @@
 import { CalendarDateRangePicker } from '@/components/CalendarDateRangePicker'
 import { Header } from '@/components/Header'
 import { LayoutPage } from '@/components/LayoutPage'
-import { authOptions } from '@/lib/auth/next-auth'
 import { getCurrentUser } from '@/lib/session'
-import { redirect } from 'next/navigation'
 import { GetGoals } from './actions/goals'
 import { DashboardContent } from './components/dashboard-content'
 
 export default async function DashboardPage() {
   const user = await getCurrentUser()
-
   if (!user) {
-    redirect(authOptions?.pages?.signIn || '/login')
+    throw new Error('User not found')
   }
 
   const userGoals = await GetGoals(user)
@@ -24,7 +21,7 @@ export default async function DashboardPage() {
         </div>
       </Header>
 
-      <DashboardContent user={user!} goals={userGoals} />
+      <DashboardContent user={user} goals={userGoals} />
     </LayoutPage>
   )
 }

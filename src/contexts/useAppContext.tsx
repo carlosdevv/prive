@@ -31,16 +31,17 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   const [patrimonyValue, setPatrimonyValue] = useState<number>(0)
 
   const handleGetPatrimonyValue = useCallback(async () => {
-    const patrimony = await GetPatrimony(userProps!)
+    if (!userProps) return
+    const patrimony = await GetPatrimony(userProps)
 
     if (patrimony) {
       setPatrimonyValue(patrimony)
     }
-  }, [])
+  }, [userProps])
 
   useEffect(() => {
     handleGetPatrimonyValue()
-  }, [patrimonyValue])
+  }, [handleGetPatrimonyValue])
 
   return (
     <AppContext.Provider

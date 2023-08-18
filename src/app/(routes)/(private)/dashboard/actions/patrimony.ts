@@ -6,7 +6,7 @@ import { db } from '@/lib/database'
 export async function SetPatrimony(user: UserSession, patrimony: number) {
   const findedUser = await db.user.findFirst({
     where: {
-      id: user?.id
+      id: user.id
     }
   })
 
@@ -27,7 +27,7 @@ export async function SetPatrimony(user: UserSession, patrimony: number) {
 export async function GetPatrimony(user: UserSession) {
   const findedUser = await db.user.findFirst({
     where: {
-      id: user?.id
+      id: user.id
     }
   })
 

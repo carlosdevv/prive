@@ -43,10 +43,9 @@ export const useAssetsContentComponent = ({
       }, 0)
 
       const total = sumRendaFixa + (sumCrypto ?? 0) + (sumStock ?? 0)
-      console.log(total)
       handleSetPatrimonyValue(total)
     }
-  }, [fetchStockData, fetchCryptoData])
+  }, [assetsList, fetchStockData?.result, fetchCryptoData?.coins])
 
   const handleGetAssetsPrices = useCallback(async () => {
     if (assetsList.length > 0) {
@@ -59,7 +58,6 @@ export const useAssetsContentComponent = ({
           item => item.class !== (ClassEnum.RENDA_FIXA || ClassEnum.CRYPTO)
         )
         .map(item => item.name)
-
       if (stockAssets.length > 0) {
         await fetchStocks(stockAssets)
       }
@@ -67,7 +65,6 @@ export const useAssetsContentComponent = ({
       if (cryptoAssets.length > 0) {
         await fetchCryptos(cryptoAssets)
       }
-
       handleSetPatrimony()
     }
   }, [assetsList])
@@ -152,6 +149,12 @@ export const useAssetsContentComponent = ({
   useEffect(() => {
     handleGetAssetsPrices()
   }, [assetsList])
+
+  useEffect(() => {
+    if (fetchStockData || fetchCryptoData) {
+      handleSetPatrimony()
+    }
+  }, [fetchStockData, fetchCryptoData])
 
   return { handleFormatAsset, validateAssetClass, refetchAssets }
 }

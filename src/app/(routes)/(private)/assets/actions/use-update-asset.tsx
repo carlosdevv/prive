@@ -2,8 +2,10 @@ import { useDeleteAsset, useUpdateAsset } from '@/app/(services)/asset/useAsset'
 import { useAppContext } from '@/contexts/useAppContext'
 import { useAssetContext } from '@/contexts/useAssetContext'
 import { toast } from '@/hooks/useToast'
+import { ROUTES } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useCallback, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -44,15 +46,19 @@ export const useUpdateAssetComponent = ({
     }
   })
 
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const { userProps: user } = useAppContext()
   const { refetchAssets } = useAssetContext()
-  const [isOpenAlertDialog, setIsOpenAlertDialog] = useState(false)
-  const [isOpenSheet, setIsOpenSheet] = useState(false)
+  const isOpenAlertDialog: boolean = searchParams?.get('delete-asset')
+    ? true
+    : false
+  const isOpenSheet: boolean = searchParams?.get('update-asset') ? true : false
 
   const { mutate: updateAsset, isLoading: isUpdatingAsset } = useUpdateAsset({
     onSuccess: async () => {
       await refetchAssets()
-      setIsOpenSheet(false)
+      handleCloseSheet()
       toast({
         title: 'Sucesso.',
         description: 'Ativo atualizado com sucesso.'
@@ -70,7 +76,7 @@ export const useUpdateAssetComponent = ({
   const { mutate: deleteAsset, isLoading: isDeletingAsset } = useDeleteAsset({
     onSuccess: async () => {
       await refetchAssets()
-      setIsOpenSheet(false)
+      handleCloseSheet()
       toast({
         title: 'Sucesso.',
         description: 'Ativo removido com sucesso.'
@@ -85,25 +91,44 @@ export const useUpdateAssetComponent = ({
     }
   })
 
+  const handleOpenSheet = useCallback(
+    () => router.push(`${ROUTES.ASSETS}?update-asset=true`),
+    []
+  )
+
+  const handleOpenDeleteSheet = useCallback(() => {
+    if (isOpenAlertDialog) return
+    router.push(`${ROUTES.ASSETS}?update-asset=true&delete-asset=true`)
+  }, [])
+
+  const handleCloseSheet = useCallback(() => router.replace(ROUTES.ASSETS), [])
+
+  const handleCloseDeleteSheet = useCallback(
+    () => router.replace(`${ROUTES.ASSETS}?update-asset=true`),
+    []
+  )
+
   const handleRemoveAsset = useCallback(() => {
-    deleteAsset({ name: assetName, userId: user!.id })
-    setIsOpenAlertDialog(false)
+    if (!user) return
+    deleteAsset({ name: assetName, userId: user.id })
+    handleCloseDeleteSheet()
   }, [])
 
   function onSubmit(data: UpdateAssetFormData) {
+    if (!user) return
     const params = {
       ...data,
       name: assetName,
-      userId: user!.id
+      userId: user.id
     }
     updateAsset(params)
   }
 
   return {
     isOpenAlertDialog,
-    setIsOpenAlertDialog,
+    handleCloseDeleteSheet,
     isOpenSheet,
-    setIsOpenSheet,
+    handleCloseSheet,
     reset,
     handleSubmit,
     onSubmit,
@@ -111,6 +136,8 @@ export const useUpdateAssetComponent = ({
     errors,
     isUpdatingAsset,
     isDeletingAsset,
-    handleRemoveAsset
+    handleRemoveAsset,
+    handleOpenSheet,
+    handleOpenDeleteSheet
   }
 }

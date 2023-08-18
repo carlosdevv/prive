@@ -1,24 +1,35 @@
 import {
   AlertTriangle,
+  ArrowDownIcon,
   ArrowRight,
+  ArrowUpIcon,
   CalendarDays,
   Check,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   CreditCard,
+  DollarSign,
   Eye,
   EyeOff,
   File,
   FileText,
   Framer,
   HelpCircle,
+  Home,
   Image,
+  Landmark,
   Laptop,
   Loader,
+  LucideIcon,
   Moon,
   MoreVertical,
+  Pencil,
+  Percent,
+  PiggyBank,
   Pizza,
   Plus,
+  RefreshCcw,
   Settings,
   Store,
   SunMedium,
@@ -26,19 +37,8 @@ import {
   Trash,
   Twitter,
   User,
-  X,
-  type Icon as LucideIcon,
-  Home,
-  ArrowUpIcon,
-  ArrowDownIcon,
-  DollarSign,
-  Percent,
-  PiggyBank,
-  Landmark,
   Wallet,
-  Pencil,
-  CheckCircle2,
-  RotateCcw
+  X
 } from 'lucide-react'
 
 import { FcGoogle } from 'react-icons/fc'
@@ -85,5 +85,5 @@ export const Icons = {
   bank: Landmark,
   wallet: Wallet,
   edit: Pencil,
-  restart: RotateCcw
+  refresh: RefreshCcw
 }

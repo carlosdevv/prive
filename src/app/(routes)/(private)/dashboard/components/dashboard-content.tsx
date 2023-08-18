@@ -9,27 +9,27 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { ClassEnum } from '@prisma/client'
-import { useDashboardContentComponent } from '../actions/use-dashboard-content'
 import { DashboardCards } from './dashboard-cards'
-import { InvestmentGoals } from './investment-goals'
+import { useDashboardContentComponent } from '../actions/use-dashboard-content'
 
 type DashboardContentProps = {
   user: UserSession
-  goals:
-    | {
-        id: string
-        class: ClassEnum
-        value: number | null
-        goal: number | null
-        userId: string
-      }[]
+  goals: {
+    id: string
+    class: ClassEnum
+    value: number | null
+    goal: number | null
+    userId: string
+  }[]
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function DashboardContent({ goals, user }: DashboardContentProps) {
+  // eslint-disable-next-line no-empty-pattern
   const {} = useDashboardContentComponent({ user })
   return (
     <>
-      <DashboardCards goals={goals} />
+      <DashboardCards />
 
       <div className="flex">
         <Card className="w-full">
@@ -39,9 +39,7 @@ export function DashboardContent({ goals, user }: DashboardContentProps) {
               Ajuste suas metas de investimento.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            {/* <InvestmentGoals goals={goals} /> */}
-          </CardContent>
+          <CardContent>{/* <InvestmentGoals goals={goals} /> */}</CardContent>
         </Card>
       </div>
     </>

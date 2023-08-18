@@ -14,6 +14,7 @@ export type UserSession = UserNextAuth & {
   name: string
   email: string
   refreshToken: string
+  patrimony: number
 }
 
 export type UserSecureData = Omit<User, 'password'>

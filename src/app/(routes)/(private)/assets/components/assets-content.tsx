@@ -1,14 +1,13 @@
 'use client'
 
+import { UserSession } from '@/app/(services)/user/types'
 import { Header } from '@/components/Header'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Asset } from '@prisma/client'
+import { useAssetsContentComponent } from '../actions/use-assets-content'
+import { AssetInfoManager } from './asset-info-manager'
 import { AssetsTableContent } from './assets-table-content'
 import { CreateAssetButton } from './create-asset'
-import { UserSession } from '@/app/(services)/user/types'
-import { useAssetsContentComponent } from '../actions/use-assets-content'
 
 type AssetsTableProps = {
   user: UserSession
@@ -85,20 +84,9 @@ export default function AssetsPageContent({ assets, user }: AssetsTableProps) {
   return (
     <>
       <Header heading="Ativos" text={`Gerencie seus ativos.`}>
-        <div className="flex flex-col gap-2">
-          <Label>Valor do aporte</Label>
-          <Input placeholder="R$ 0,00" />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label>Classes a Aportar</Label>
-          <Input placeholder="0" />
-        </div>
-        <div className="flex flex-col gap-2">
-          <Label>Ativos Finais</Label>
-          <Input placeholder="0" />
-        </div>
-        <CreateAssetButton refetchAssets={refetchAssets} />
+        <CreateAssetButton className="self-end" refetchAssets={refetchAssets} />
       </Header>
+      <AssetInfoManager />
       <Tabs defaultValue="RENDA_FIXA">
         <TabsList className="grid w-full grid-cols-6">
           {TabsData.tabsData.map(tab => (
