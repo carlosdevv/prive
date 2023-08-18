@@ -29,7 +29,7 @@ export function MainNav({ items, children }: MainNavProps) {
       </Link>
       {items?.length ? (
         <nav className="hidden gap-6 md:flex">
-          {items?.map((item, index) => (
+          {items?.map(item => (
             <Link
               key={item.href}
               href={item.disabled ? '#' : item.href}

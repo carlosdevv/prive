@@ -2,7 +2,7 @@ import { useDeleteAsset, useUpdateAsset } from '@/app/(services)/asset/useAsset'
 import { useAppContext } from '@/contexts/useAppContext'
 import { useAssetContext } from '@/contexts/useAssetContext'
 import { toast } from '@/hooks/useToast'
-import { ROUTES } from '@/lib/routes'
+import { BASE_ROUTES, DASHBOARD_ROUTES } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback } from 'react'
@@ -54,6 +54,7 @@ export const useUpdateAssetComponent = ({
     ? true
     : false
   const isOpenSheet: boolean = searchParams?.get('update-asset') ? true : false
+  const currentPath = `${BASE_ROUTES.DASHBOARD}${DASHBOARD_ROUTES.ASSETS}`
 
   const { mutate: updateAsset, isLoading: isUpdatingAsset } = useUpdateAsset({
     onSuccess: async () => {
@@ -92,19 +93,19 @@ export const useUpdateAssetComponent = ({
   })
 
   const handleOpenSheet = useCallback(
-    () => router.push(`${ROUTES.ASSETS}?update-asset=true`),
+    () => router.push(`${currentPath}?update-asset=true`),
     []
   )
 
   const handleOpenDeleteSheet = useCallback(() => {
     if (isOpenAlertDialog) return
-    router.push(`${ROUTES.ASSETS}?update-asset=true&delete-asset=true`)
+    router.push(`${currentPath}?update-asset=true&delete-asset=true`)
   }, [])
 
-  const handleCloseSheet = useCallback(() => router.replace(ROUTES.ASSETS), [])
+  const handleCloseSheet = useCallback(() => router.replace(currentPath), [])
 
   const handleCloseDeleteSheet = useCallback(
-    () => router.replace(`${ROUTES.ASSETS}?update-asset=true`),
+    () => router.replace(`${currentPath}?update-asset=true`),
     []
   )
 

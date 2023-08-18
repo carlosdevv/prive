@@ -1,6 +1,6 @@
 'use client'
 
-import { GetPatrimony } from '@/app/(routes)/(private)/dashboard/actions/patrimony'
+import { GetPatrimony } from '@/app/(routes)/(private)/dashboard/(dashboard)/actions/patrimony'
 import { UserSession } from '@/app/(services)/user/types'
 import {
   Dispatch,

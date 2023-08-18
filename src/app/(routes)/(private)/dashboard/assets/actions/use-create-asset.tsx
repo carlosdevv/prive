@@ -6,7 +6,7 @@ import {
 } from '@/app/(services)/asset/useAsset'
 import { useAppContext } from '@/contexts/useAppContext'
 import { toast } from '@/hooks/useToast'
-import { ROUTES } from '@/lib/routes'
+import { BASE_ROUTES, DASHBOARD_ROUTES } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ClassEnum } from '@prisma/client'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -48,10 +48,12 @@ export const useCreateAssetComponent = ({
   const searchParams = useSearchParams()
   const router = useRouter()
   const { userProps: user } = useAppContext()
+
   const [assetClass, setAssetClass] = useState('RENDA_FIXA')
   const [isErrorFetchAssetPrice, setIsErrorFetchAssetPrice] =
     useState<boolean>(false)
   const isOpenSheet: boolean = searchParams?.get('create-asset') ? true : false
+  const currentPath = `${BASE_ROUTES.DASHBOARD}${DASHBOARD_ROUTES.ASSETS}`
 
   const { mutate: createAsset, isLoading: isLoadingCreateAsset } =
     useCreateAsset({
@@ -93,11 +95,11 @@ export const useCreateAssetComponent = ({
   })
 
   const handleOpenSheet = useCallback(
-    () => router.push(`${ROUTES.ASSETS}?create-asset=true`),
+    () => router.push(`${currentPath}?create-asset=true`),
     []
   )
 
-  const handleCloseSheet = useCallback(() => router.push(ROUTES.ASSETS), [])
+  const handleCloseSheet = useCallback(() => router.push(currentPath), [])
 
   async function onSubmit(data: CreateAssetFormData) {
     const isRendaFixa = assetClass === 'RENDA_FIXA'

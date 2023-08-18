@@ -1,25 +1,26 @@
+import { BASE_ROUTES, DASHBOARD_ROUTES } from '@/lib/routes'
 import { PrivateLayoutConfig } from './types'
 
 export const privateLayoutConfig: PrivateLayoutConfig = {
   mainNav: [
     {
       title: 'Dashboard',
-      href: '/dashboard'
+      href: `${BASE_ROUTES.DASHBOARD}`
     },
     {
       title: 'Configurações',
-      href: '/settings'
+      href: `${BASE_ROUTES.SETTINGS}`
     }
   ],
   dashboardNavBar: [
     {
       title: 'Dashboard',
-      href: '/dashboard',
+      href: `${BASE_ROUTES.DASHBOARD}/${DASHBOARD_ROUTES.HOME}`,
       icon: 'home'
     },
     {
       title: 'Ativos',
-      href: '/assets',
+      href: `${BASE_ROUTES.DASHBOARD}/${DASHBOARD_ROUTES.ASSETS}`,
       icon: 'wallet'
     }
   ],

@@ -1,9 +1,12 @@
-export enum ROUTES {
+export enum BASE_ROUTES {
   HOME = '/',
   LOGIN = '/login',
   REGISTER = '/register',
   DASHBOARD = '/dashboard',
-  PROFILE = '/profile',
-  SETTINGS = '/settings',
+  SETTINGS = '/settings'
+}
+
+export enum DASHBOARD_ROUTES {
+  HOME = '/',
   ASSETS = '/assets'
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { addDays, format } from 'date-fns'
+import { addDays } from 'date-fns'
 import { Calendar as CalendarIcon } from 'lucide-react'
 import * as React from 'react'
 import { DateRange } from 'react-day-picker'
@@ -13,8 +13,8 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover'
 import { cn } from '@/lib/utils'
-import { ptBR } from 'date-fns/locale'
 import { formatDateAbreviated } from '@/utils/format'
+import { ptBR } from 'date-fns/locale'
 
 export function CalendarDateRangePicker({
   className

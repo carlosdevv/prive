@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PrismaAdapter } from '@next-auth/prisma-adapter'
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
@@ -35,7 +37,7 @@ export const authOptions: NextAuthOptions = {
         email: {},
         password: {}
       },
-      async authorize(credentials, req) {
+      async authorize(credentials) {
         const authenticateUser = new AuthenticateUser()
 
         const user = await authenticateUser.execute({

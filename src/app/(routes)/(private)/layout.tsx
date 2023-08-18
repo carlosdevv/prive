@@ -3,6 +3,7 @@ import { privateLayoutConfig } from '@/components/Nav/config'
 import { MainNav } from '@/components/Nav/main-nav'
 import { Nav } from '@/components/Nav/nav'
 import { ThemeToggle } from '@/components/ThemeToggle'
+import { BASE_ROUTES } from '@/lib/routes'
 import { getCurrentUser } from '@/lib/session'
 import { redirect } from 'next/navigation'
 
@@ -14,7 +15,7 @@ export default async function PrivateLayout({ children }: PrivateLayoutProps) {
   const user = await getCurrentUser()
 
   if (!user) {
-    return redirect('/login')
+    return redirect(BASE_ROUTES.LOGIN)
   }
 
   return (

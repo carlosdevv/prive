@@ -71,7 +71,7 @@ export default function ResumeInvestment({
           <Label className="text-muted-foreground">Aporte (R$)</Label>
           <span className="font-medium">{formatCurrency(0, 'BRL')}</span>
         </div>
-        <UpdateGoalDialog />
+        <UpdateGoalDialog goal={meta ?? 0} />
       </div>
     </section>
   )

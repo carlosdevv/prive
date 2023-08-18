@@ -47,7 +47,7 @@ export function InvestmentGoals({ goals }: InvestmentGoalsProps) {
         meta: goals.find(goal => goal.class === ClassEnum.CRYPTO)?.goal
       }
     ],
-    []
+    [goals]
   )
 
   return (

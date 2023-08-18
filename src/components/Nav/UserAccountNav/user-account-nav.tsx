@@ -16,14 +16,14 @@ import { UserAvatar } from './user-avatar'
 
 interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
   user: Pick<User, 'name' | 'email'>
-  items?: UserNavItem[]
+  items: UserNavItem[]
 }
 
 export function UserAccountNav({ user, items }: UserAccountNavProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <UserAvatar user={{ name: user.name! }} className="h-8 w-8" />
+        <UserAvatar user={{ name: user.name || '' }} className="h-8 w-8" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <div className="flex items-center justify-start gap-2 p-2">
@@ -39,7 +39,9 @@ export function UserAccountNav({ user, items }: UserAccountNavProps) {
         <DropdownMenuSeparator />
         {items?.map(item => (
           <DropdownMenuItem key={item.href} asChild>
-            <Link href={item.disabled ? '/' : item.href!}>{item.title}</Link>
+            {item.href && (
+              <Link href={item.disabled ? '/' : item.href}>{item.title}</Link>
+            )}
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />

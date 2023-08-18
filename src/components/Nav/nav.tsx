@@ -20,7 +20,7 @@ export function Nav({ items }: NavProps) {
 
   return (
     <nav className="grid items-start gap-2">
-      {items.map((item, index) => {
+      {items.map(item => {
         const Icon = Icons[item.icon || 'arrowRight']
         return (
           item.href && (

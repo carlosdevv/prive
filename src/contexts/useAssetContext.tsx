@@ -1,7 +1,7 @@
 'use client'
 
-import { GetAssets } from '@/app/(routes)/(private)/assets/actions/assets'
-import { SetPatrimony } from '@/app/(routes)/(private)/dashboard/actions/patrimony'
+import { SetPatrimony } from '@/app/(routes)/(private)/dashboard/(dashboard)/actions/patrimony'
+import { GetAssets } from '@/app/(routes)/(private)/dashboard/assets/actions/assets'
 import { Asset } from '@prisma/client'
 import {
   Dispatch,

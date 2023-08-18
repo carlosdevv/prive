@@ -26,7 +26,7 @@ export type SidebarNavItem = {
     }
   | {
       href?: string
-      items: any[]
+      items: Element[]
     }
 )
 
