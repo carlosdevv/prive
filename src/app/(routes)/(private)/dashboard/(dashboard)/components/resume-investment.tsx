@@ -5,18 +5,21 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { formatCurrency } from '@/utils/format'
+import { ClassEnum } from '@prisma/client'
 import UpdateGoalDialog from './update-goal-dialog'
 
 type ResumeInvestmentProps = {
   title: string
   value: number | null | undefined
   meta?: number | null
+  classType: ClassEnum
 }
 
 export default function ResumeInvestment({
   title,
   value,
-  meta
+  meta,
+  classType
 }: ResumeInvestmentProps) {
   const { data: dollarCotation, isLoading } = useFetchUSDCotation()
 
@@ -71,7 +74,10 @@ export default function ResumeInvestment({
           <Label className="text-muted-foreground">Aporte (R$)</Label>
           <span className="font-medium">{formatCurrency(0, 'BRL')}</span>
         </div>
-        <UpdateGoalDialog goal={meta ?? 0} />
+        <div className="flex flex-col gap-2">
+          <Label className="text-muted-foreground">Opções</Label>
+          <UpdateGoalDialog goal={meta ?? 0} classType={classType} />
+        </div>
       </div>
     </section>
   )

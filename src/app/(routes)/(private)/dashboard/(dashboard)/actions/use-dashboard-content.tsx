@@ -1,19 +1,22 @@
 import { UserSession } from '@/app/(services)/user/types'
-import { useAppContext } from '@/contexts/useAppContext'
+import { GoalsProps, useAppContext } from '@/contexts/useAppContext'
 import { useEffect } from 'react'
 
 type CustomHookDashboardContentComponent = {
   user: UserSession
+  goals: GoalsProps
 }
 
 export const useDashboardContentComponent = ({
-  user
+  user,
+  goals
 }: CustomHookDashboardContentComponent) => {
-  const { setUserProps } = useAppContext()
+  const { setUserProps, goalsValue, setGoalsValue } = useAppContext()
 
   useEffect(() => {
     setUserProps(user)
-  }, [])
+    setGoalsValue(goals)
+  }, [goals])
 
-  return {}
+  return { goalsValue }
 }

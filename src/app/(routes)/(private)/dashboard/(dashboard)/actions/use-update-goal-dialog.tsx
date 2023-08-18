@@ -1,8 +1,10 @@
+import { useAppContext } from '@/contexts/useAppContext'
 import { BASE_ROUTES } from '@/lib/routes'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback } from 'react'
 
 export const useUpdateGoalDialogComponent = () => {
+  const { handleUpdateUserGoal } = useAppContext()
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -16,5 +18,10 @@ export const useUpdateGoalDialogComponent = () => {
 
   const handleCloseDialog = useCallback(() => router.replace(currentPath), [])
 
-  return { isOpenDialog, handleOpenDialog, handleCloseDialog }
+  return {
+    isOpenDialog,
+    handleOpenDialog,
+    handleCloseDialog,
+    handleUpdateUserGoal
+  }
 }

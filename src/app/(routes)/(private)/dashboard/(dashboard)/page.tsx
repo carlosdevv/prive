@@ -2,8 +2,8 @@ import { CalendarDateRangePicker } from '@/components/CalendarDateRangePicker'
 import { Header } from '@/components/Header'
 import { LayoutPage } from '@/components/LayoutPage'
 import { getCurrentUser } from '@/lib/session'
-import { GetGoals } from './actions/goals'
 import { DashboardContent } from './components/dashboard-content'
+import { GetGoals } from './actions/goals'
 
 export default async function DashboardPage() {
   const user = await getCurrentUser()

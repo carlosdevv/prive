@@ -8,25 +8,22 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card'
-import { ClassEnum } from '@prisma/client'
+import { GoalsProps } from '@/contexts/useAppContext'
 import { useDashboardContentComponent } from '../actions/use-dashboard-content'
 import { DashboardCards } from './dashboard-cards'
 import { InvestmentGoals } from './investment-goals'
 
 type DashboardContentProps = {
   user: UserSession
-  goals: {
-    id: string
-    class: ClassEnum
-    value: number | null
-    goal: number | null
-    userId: string
-  }[]
+  goals: GoalsProps
 }
 
-export function DashboardContent({ goals, user }: DashboardContentProps) {
-  // eslint-disable-next-line no-empty-pattern
-  const {} = useDashboardContentComponent({ user })
+export function DashboardContent({ user, goals }: DashboardContentProps) {
+  const { goalsValue } = useDashboardContentComponent({
+    user,
+    goals
+  })
+
   return (
     <>
       <DashboardCards />
@@ -40,7 +37,7 @@ export function DashboardContent({ goals, user }: DashboardContentProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <InvestmentGoals goals={goals} />
+            <InvestmentGoals goals={goalsValue.length ? goalsValue : goals} />
           </CardContent>
         </Card>
       </div>
