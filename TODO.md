@@ -1,5 +1,6 @@
 ## To Do
 
-# Fix: how update user patrimony on render assets page √
-# Feat: visualize goals in dashboard page √
-# Fix: bug on only show crypto props when open update goal modal dashboard page
+# Fix: change all dispatchs in context api to create functions and memoize them
+# Fix: config call in database exclude calls http
+# Fix: change the states open modals in assets page to normal (without using state params) NOT NOW
+# Fix: update patrinomy value (multiplicate with amount)

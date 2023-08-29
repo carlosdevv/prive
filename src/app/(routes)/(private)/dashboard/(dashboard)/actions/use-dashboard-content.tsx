@@ -11,12 +11,19 @@ export const useDashboardContentComponent = ({
   user,
   goals
 }: CustomHookDashboardContentComponent) => {
-  const { setUserProps, goalsValue, setGoalsValue } = useAppContext()
+  const {
+    setUserProps,
+    goalsValue,
+    setGoalsValue,
+    goalsSum,
+    handleGetGoalsSum
+  } = useAppContext()
 
   useEffect(() => {
     setUserProps(user)
     setGoalsValue(goals)
+    handleGetGoalsSum(goals)
   }, [goals])
 
-  return { goalsValue }
+  return { goalsValue, goalsSum }
 }

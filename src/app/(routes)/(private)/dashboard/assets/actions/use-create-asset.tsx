@@ -24,7 +24,7 @@ const createAssetSchema = z.object({
     .number({ invalid_type_error: 'Apenas números são permitidos.' })
     .nonnegative('Insira um valor positivo.'),
   goal: z.coerce
-    .number()
+    .number({ invalid_type_error: 'Apenas números são permitidos.' })
     .nonnegative('A meta deve ser positiva.')
     .min(1, 'É necessário informar o objetivo')
     .max(100, 'O objetivo deve ter no máximo 100%.')
@@ -101,47 +101,71 @@ export const useCreateAssetComponent = ({
 
   const handleCloseSheet = useCallback(() => router.push(currentPath), [])
 
-  async function onSubmit(data: CreateAssetFormData) {
-    const isRendaFixa = assetClass === 'RENDA_FIXA'
-    const isStockClass = !isRendaFixa && assetClass !== ClassEnum.CRYPTO
-    const isCryptoClass = assetClass === ClassEnum.CRYPTO
+  const onSubmit = useCallback(
+    async (data: CreateAssetFormData) => {
+      try {
+        if (assetClass === ClassEnum.CRYPTO) {
+          await fetchCryptos([data.name.toUpperCase()]).then(value => {
+            if (!value) {
+              resetFetchCryptos()
+              throw new Error()
+            }
+            const newAsset: AssetProps = {
+              name: data.name,
+              class: assetClass as ClassEnum,
+              amount: data.amount,
+              value: value.coins[0].value * data.amount,
+              goal: data.goal,
+              userId: user?.id ?? ''
+            }
 
-    try {
-      if (isCryptoClass) {
-        console.log('isCryptoClass')
-        await fetchCryptos([data.name.toUpperCase()])
-        if (isErrorFetchAssetPrice) {
-          resetFetchCryptos()
-          throw new Error()
+            createAsset(newAsset)
+            return
+          })
         }
-      }
-      if (isStockClass) {
-        console.log('isStockClass')
-        await fetchStocks([data.name.toUpperCase()])
-        if (isErrorFetchAssetPrice) {
-          resetFetchStocks()
-          throw new Error()
+
+        if (assetClass === ClassEnum.RENDA_FIXA) {
+          const newAsset: AssetProps = {
+            name: data.name,
+            class: assetClass as ClassEnum,
+            amount: undefined,
+            value: data.amount,
+            goal: data.goal,
+            userId: user?.id ?? ''
+          }
+
+          createAsset(newAsset)
         }
-      }
+        await fetchStocks([data.name.toUpperCase()]).then(value => {
+          if (!value) {
+            resetFetchStocks()
+            throw new Error()
+          }
 
-      const newAsset: AssetProps = {
-        name: data.name,
-        class: assetClass as ClassEnum,
-        amount: isRendaFixa ? undefined : data.amount,
-        value: isRendaFixa ? data.amount : undefined,
-        goal: data.goal,
-        userId: user?.id ?? ''
-      }
+          const newAsset: AssetProps = {
+            name: data.name,
+            class: assetClass as ClassEnum,
 
-      createAsset(newAsset)
-    } catch (error) {
-      toast({
-        title: 'Algo deu errado.',
-        description: `Não encontramos o ativo ${data.name.toUpperCase()}.`,
-        variant: 'destructive'
-      })
-    }
-  }
+            amount: data.amount,
+            value: value.result[0].value * data.amount,
+            goal: data.goal,
+            userId: user?.id ?? ''
+          }
+
+          createAsset(newAsset)
+          return
+        })
+      } catch (error) {
+        toast({
+          title: 'Algo deu errado.',
+          description: `Não encontramos o ativo ${data.name.toUpperCase()}.`,
+          variant: 'destructive'
+        })
+      }
+    },
+    [assetClass, fetchStocks, fetchCryptos, isErrorFetchAssetPrice]
+  )
+
   return {
     isOpenSheet,
     reset,

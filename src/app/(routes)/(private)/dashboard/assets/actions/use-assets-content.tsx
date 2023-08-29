@@ -19,8 +19,13 @@ export const useAssetsContentComponent = ({
   user
 }: CustomHookContentComponentProps) => {
   const { setUserProps } = useAppContext()
-  const { assetsList, setAssetsList, refetchAssets, handleSetPatrimonyValue } =
-    useAssetContext()
+  const {
+    assetsList,
+    setAssetsList,
+    refetchAssets,
+    handleSetPatrimonyValue,
+    handleUpdateAssetValue: updateAssetValue
+  } = useAssetContext()
 
   const { mutateAsync: fetchStocks, data: fetchStockData } = useFetchStocks()
   const { mutateAsync: fetchCryptos, data: fetchCryptoData } = useFetchCryptos()
@@ -45,7 +50,7 @@ export const useAssetsContentComponent = ({
       const total = sumRendaFixa + (sumCrypto ?? 0) + (sumStock ?? 0)
       handleSetPatrimonyValue(total)
     }
-  }, [assetsList, fetchStockData?.result, fetchCryptoData?.coins])
+  }, [assetsList, fetchStockData, fetchCryptoData])
 
   const handleGetAssetsPrices = useCallback(async () => {
     if (assetsList.length > 0) {
@@ -65,9 +70,32 @@ export const useAssetsContentComponent = ({
       if (cryptoAssets.length > 0) {
         await fetchCryptos(cryptoAssets)
       }
-      handleSetPatrimony()
     }
   }, [assetsList])
+
+  const handleUpdateAssetValue = useCallback(() => {
+    if (assetsList.length > 0) {
+      if (fetchStockData) {
+        fetchStockData.result.map(item => {
+          const asset = assetsList.find(asset => asset.name === item.ticker)
+          if (asset && asset.value !== item.value) {
+            updateAssetValue(item.ticker, item.value)
+          }
+        })
+      }
+
+      if (fetchCryptoData) {
+        fetchCryptoData.coins.map(item => {
+          const asset = assetsList.find(asset => asset.name === item.coin)
+          if (asset && asset.value !== item.value) {
+            updateAssetValue(item.coin, item.value)
+          }
+        })
+      }
+
+      handleSetPatrimony()
+    }
+  }, [assetsList, fetchStockData, fetchCryptoData])
 
   const validateAssetClass = useMemo(() => {
     return {
@@ -152,9 +180,9 @@ export const useAssetsContentComponent = ({
 
   useEffect(() => {
     if (fetchStockData || fetchCryptoData) {
-      handleSetPatrimony()
+      handleUpdateAssetValue()
     }
-  }, [fetchStockData, fetchCryptoData])
+  }, [fetchStockData, fetchCryptoData, assetsList])
 
   return { handleFormatAsset, validateAssetClass, refetchAssets }
 }

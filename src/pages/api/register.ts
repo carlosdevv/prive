@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CreateUser } from '@/app/(services)/user/repository/create-user'
 import type { NextApiRequest, NextApiResponse } from 'next'
 

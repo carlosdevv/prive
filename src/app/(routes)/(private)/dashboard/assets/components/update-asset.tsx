@@ -100,7 +100,6 @@ export function UpdateAssetButton({
                   {...register('goal')}
                   placeholder="Ex: 10%"
                   hasRightIcon={() => <Icons.percent size={16} />}
-                  type="number"
                 />
                 {errors.goal && (
                   <p className="px-1 text-xs text-red-600">

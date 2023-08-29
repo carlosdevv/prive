@@ -37,7 +37,7 @@ export function DashboardCards() {
           <div className="text-2xl font-bold">{`${
             isLoading
               ? formatCurrency(0, 'USD')
-              : formatCurrency(patrimonyValue * Number(dollarCotation), 'USD')
+              : formatCurrency(patrimonyValue / Number(dollarCotation), 'USD')
           }`}</div>
         </CardContent>
       </Card>

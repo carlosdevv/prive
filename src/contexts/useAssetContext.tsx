@@ -1,7 +1,10 @@
 'use client'
 
 import { SetPatrimony } from '@/app/(routes)/(private)/dashboard/(dashboard)/actions/patrimony'
-import { GetAssets } from '@/app/(routes)/(private)/dashboard/assets/actions/assets'
+import {
+  GetAssets,
+  UpdateAssetValue
+} from '@/app/(routes)/(private)/dashboard/assets/actions/assets'
 import { Asset } from '@prisma/client'
 import {
   Dispatch,
@@ -27,6 +30,7 @@ type AssetContextType = {
   handleSetPatrimonyValue: (value: number) => void
   assetInfoManagerProps: AssetInfoManagerProps
   setAssetInfoManagerProps: Dispatch<SetStateAction<AssetInfoManagerProps>>
+  handleUpdateAssetValue: (ticker: string, newValue: number) => Promise<void>
 }
 
 type AssetProviderProps = {
@@ -52,16 +56,28 @@ export const AssetProvider = ({ children }: AssetProviderProps) => {
 
     const refetchedAssets = await GetAssets(userProps)
     setAssetsList(refetchedAssets)
-  }, [])
+  }, [userProps, assetsList])
 
-  const handleSetPatrimonyValue = useCallback(async (value: number) => {
-    if (!userProps) return
+  const handleSetPatrimonyValue = useCallback(
+    async (value: number) => {
+      if (!userProps) return
 
-    if (userProps.patrimony !== value) {
-      setPatrimonyValue(value)
-      await SetPatrimony(userProps, value)
-    }
-  }, [])
+      if (userProps.patrimony !== value) {
+        setPatrimonyValue(value)
+        await SetPatrimony(userProps, value)
+      }
+    },
+    [userProps]
+  )
+
+  const handleUpdateAssetValue = useCallback(
+    async (ticker: string, newValue: number) => {
+      if (!userProps) return
+
+      await UpdateAssetValue(userProps, ticker, newValue)
+    },
+    [userProps]
+  )
 
   return (
     <AssetContext.Provider
@@ -71,7 +87,8 @@ export const AssetProvider = ({ children }: AssetProviderProps) => {
         refetchAssets,
         handleSetPatrimonyValue,
         assetInfoManagerProps,
-        setAssetInfoManagerProps
+        setAssetInfoManagerProps,
+        handleUpdateAssetValue
       }}
     >
       {children}

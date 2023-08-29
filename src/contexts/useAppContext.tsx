@@ -1,11 +1,13 @@
 'use client'
 
 import {
-  GetGoals,
-  UpdateGoal
-} from '@/app/(routes)/(private)/dashboard/(dashboard)/actions/goals'
+  GetUserClasses,
+  UpdateClassGoal,
+  UpdateClassValue
+} from '@/app/(routes)/(private)/dashboard/(dashboard)/actions/classes'
 import { GetPatrimony } from '@/app/(routes)/(private)/dashboard/(dashboard)/actions/patrimony'
 import { UserSession } from '@/app/(services)/user/types'
+import { toast } from '@/hooks/useToast'
 import { ClassEnum } from '@prisma/client'
 import {
   Dispatch,
@@ -35,6 +37,9 @@ type AppContextType = {
   goalsValue: GoalsProps
   setGoalsValue: Dispatch<SetStateAction<GoalsProps>>
   handleGetUserGoals: () => Promise<void>
+  goalsSum: number
+  handleGetGoalsSum: (value: GoalsProps) => void
+  handleSetClassValue: (classSum: number, classType: ClassEnum) => Promise<void>
 }
 
 type AppProviderProps = {
@@ -47,6 +52,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   const [userProps, setUserProps] = useState<UserSession | undefined>()
   const [patrimonyValue, setPatrimonyValue] = useState<number>(0)
   const [goalsValue, setGoalsValue] = useState<GoalsProps>({} as GoalsProps)
+  const [goalsSum, setGoalsSum] = useState<number>(0)
 
   const handleGetPatrimonyValue = useCallback(async () => {
     if (!userProps) return
@@ -59,10 +65,11 @@ export const AppProvider = ({ children }: AppProviderProps) => {
 
   const handleGetUserGoals = useCallback(async () => {
     if (!userProps) return
-    const goals = await GetGoals(userProps)
+    const userClassGoals = await GetUserClasses(userProps)
 
-    if (goals) {
-      setGoalsValue(goals)
+    if (userClassGoals) {
+      setGoalsValue(userClassGoals)
+      handleGetGoalsSum(userClassGoals)
     }
   }, [userProps])
 
@@ -70,15 +77,51 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     async (newGoal: number, classType: ClassEnum) => {
       if (!userProps) return
 
-      await UpdateGoal(userProps, newGoal, classType)
-      await handleGetUserGoals()
+      try {
+        await UpdateClassGoal(userProps, newGoal, classType)
+        await handleGetUserGoals()
+        toast({
+          title: 'Sucesso.',
+          description: 'A meta foi atualizada com sucesso.'
+        })
+      } catch (error) {
+        toast({
+          title: 'Erro.',
+          description: 'Ocorreu um erro ao atualizar a meta, tente novamente.',
+          variant: 'destructive'
+        })
+      }
     },
-    []
+    [userProps]
+  )
+
+  const handleGetGoalsSum = useCallback(
+    (value: GoalsProps) => {
+      const sum = value.reduce((acc, curr) => {
+        if (curr.goal) {
+          return acc + curr.goal
+        }
+        return acc
+      }, 0)
+
+      setGoalsSum(sum)
+    },
+    [goalsValue]
+  )
+
+  const handleSetClassValue = useCallback(
+    async (classSum: number, classType: ClassEnum) => {
+      if (!userProps) return
+
+      await UpdateClassValue(userProps, classSum, classType)
+    },
+    [userProps]
   )
 
   useEffect(() => {
     handleGetPatrimonyValue()
-  }, [handleGetPatrimonyValue])
+    handleGetUserGoals()
+  }, [handleGetPatrimonyValue, handleGetUserGoals])
 
   return (
     <AppContext.Provider
@@ -90,7 +133,10 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         handleUpdateUserGoal,
         goalsValue,
         setGoalsValue,
-        handleGetUserGoals
+        handleGetUserGoals,
+        goalsSum,
+        handleGetGoalsSum,
+        handleSetClassValue
       }}
     >
       {children}

@@ -3,7 +3,7 @@ import { Header } from '@/components/Header'
 import { LayoutPage } from '@/components/LayoutPage'
 import { getCurrentUser } from '@/lib/session'
 import { DashboardContent } from './components/dashboard-content'
-import { GetGoals } from './actions/goals'
+import { GetUserClasses } from './actions/classes'
 
 export default async function DashboardPage() {
   const user = await getCurrentUser()
@@ -11,7 +11,7 @@ export default async function DashboardPage() {
     throw new Error('User not found')
   }
 
-  const userGoals = await GetGoals(user)
+  const userClassGoals = await GetUserClasses(user)
 
   return (
     <LayoutPage>
@@ -21,7 +21,7 @@ export default async function DashboardPage() {
         </div>
       </Header>
 
-      <DashboardContent user={user} goals={userGoals} />
+      <DashboardContent user={user} goals={userClassGoals} />
     </LayoutPage>
   )
 }

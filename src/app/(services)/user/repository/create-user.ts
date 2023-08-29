@@ -25,7 +25,7 @@ export class CreateUser {
       }
     })
 
-    const createDefaultGoals = await db.goal.createMany({
+    await db.class.createMany({
       data: [
         {
           class: ClassEnum.RENDA_FIXA,

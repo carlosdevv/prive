@@ -20,7 +20,7 @@ const updateAssetSchema = z.object({
     .number({ invalid_type_error: 'Apenas números são permitidos.' })
     .nonnegative('Insira um valor positivo.'),
   goal: z.coerce
-    .number()
+    .number({ invalid_type_error: 'Apenas números são permitidos.' })
     .nonnegative('A meta deve ser positiva.')
     .min(1, 'É necessário informar o objetivo')
     .max(100, 'O objetivo deve ter no máximo 100%.')

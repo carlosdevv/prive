@@ -21,7 +21,7 @@ model User {
   created_at DateTime @default(now())
   is_active  Boolean  @default(true)
   assets     Asset[]
-  goals      Goal[]
+  classes    Class[]
   patrimony  Float?   @default(0)
 }
 
@@ -38,11 +38,11 @@ model Asset {
   @@index([userId])
 }
 
-model Goal {
+model Class {
   id     String    @id @unique @default(cuid())
   class  ClassEnum
   value  Float?    @default(0)
-  goal   Float?    @default(16.6666667)
+  goal   Float?    @default(16.5)
   userId String
   User   User      @relation(fields: [userId], references: [id])
 
