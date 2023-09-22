@@ -1,7 +1,5 @@
 import { useDeleteAsset, useUpdateAsset } from '@/app/(services)/asset/useAsset'
-import { useAppContext } from '@/contexts/useAppContext'
 import { useAssetContext } from '@/contexts/useAssetContext'
-import { toast } from '@/hooks/useToast'
 import { BASE_ROUTES, DASHBOARD_ROUTES } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -48,7 +46,6 @@ export const useUpdateAssetComponent = ({
 
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { userProps: user } = useAppContext()
   const { refetchAssets } = useAssetContext()
   const isOpenAlertDialog: boolean = searchParams?.get('delete-asset')
     ? true
@@ -60,17 +57,6 @@ export const useUpdateAssetComponent = ({
     onSuccess: async () => {
       await refetchAssets()
       handleCloseSheet()
-      toast({
-        title: 'Sucesso.',
-        description: 'Ativo atualizado com sucesso.'
-      })
-    },
-    onError: error => {
-      toast({
-        title: 'Erro.',
-        description: error.message,
-        variant: 'destructive'
-      })
     }
   })
 
@@ -78,17 +64,6 @@ export const useUpdateAssetComponent = ({
     onSuccess: async () => {
       await refetchAssets()
       handleCloseSheet()
-      toast({
-        title: 'Sucesso.',
-        description: 'Ativo removido com sucesso.'
-      })
-    },
-    onError: error => {
-      toast({
-        title: 'Erro.',
-        description: error.message,
-        variant: 'destructive'
-      })
     }
   })
 
@@ -110,17 +85,14 @@ export const useUpdateAssetComponent = ({
   )
 
   const handleRemoveAsset = useCallback(() => {
-    if (!user) return
-    deleteAsset({ name: assetName, userId: user.id })
+    deleteAsset({ name: assetName })
     handleCloseDeleteSheet()
   }, [])
 
   function onSubmit(data: UpdateAssetFormData) {
-    if (!user) return
     const params = {
       ...data,
-      name: assetName,
-      userId: user.id
+      name: assetName
     }
     updateAsset(params)
   }

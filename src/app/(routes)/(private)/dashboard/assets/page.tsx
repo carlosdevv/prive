@@ -1,19 +1,14 @@
 import { LayoutPage } from '@/components/LayoutPage'
-import { getCurrentUser } from '@/lib/session'
-import { GetAssets } from './actions/assets'
+import { Suspense } from 'react'
 import AssetsPageContent from './components/assets-content'
+import AssetPageLoading from './loading'
 
 export default async function AssetsPage() {
-  const user = await getCurrentUser()
-  if (!user) {
-    throw new Error('User not found')
-  }
-
-  const assets = await GetAssets(user)
-
   return (
-    <LayoutPage>
-      <AssetsPageContent assets={assets} user={user} />
-    </LayoutPage>
+    <Suspense fallback={<AssetPageLoading />}>
+      <LayoutPage>
+        <AssetsPageContent />
+      </LayoutPage>
+    </Suspense>
   )
 }

@@ -12,15 +12,24 @@ import {
   fetchCryptos,
   fetchStocks,
   fetchUSDCotation,
+  getAssets,
   updateAsset
 } from '.'
 import {
   CreateAssetBody,
   CryptoResponse,
   DeleteAssetParams,
+  GetAssetsProps,
   TickerResponse,
   UpdateAssetParams
 } from './types'
+import { Asset } from '@prisma/client'
+
+export const useGetAssets = (
+  options?: UseMutationOptions<Asset[], AxiosError, GetAssetsProps>
+) => {
+  return useMutation(getAssets, { ...options })
+}
 
 export const useCreateAsset = (
   options?: UseMutationOptions<void, AxiosError, CreateAssetBody>

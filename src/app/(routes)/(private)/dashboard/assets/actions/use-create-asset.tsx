@@ -4,7 +4,6 @@ import {
   useFetchCryptos,
   useFetchStocks
 } from '@/app/(services)/asset/useAsset'
-import { useAppContext } from '@/contexts/useAppContext'
 import { toast } from '@/hooks/useToast'
 import { BASE_ROUTES, DASHBOARD_ROUTES } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -47,11 +46,8 @@ export const useCreateAssetComponent = ({
 
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { userProps: user } = useAppContext()
 
   const [assetClass, setAssetClass] = useState('RENDA_FIXA')
-  const [isErrorFetchAssetPrice, setIsErrorFetchAssetPrice] =
-    useState<boolean>(false)
   const isOpenSheet: boolean = searchParams?.get('create-asset') ? true : false
   const currentPath = `${BASE_ROUTES.DASHBOARD}${DASHBOARD_ROUTES.ASSETS}`
 
@@ -60,17 +56,6 @@ export const useCreateAssetComponent = ({
       onSuccess: () => {
         refetchAssets()
         handleCloseSheet()
-        toast({
-          title: 'Sucesso.',
-          description: 'Ativo criado com sucesso.'
-        })
-      },
-      onError: () => {
-        toast({
-          title: 'Algo deu errado.',
-          description: 'Não foi possível criar o ativo.',
-          variant: 'destructive'
-        })
       }
     })
 
@@ -78,28 +63,23 @@ export const useCreateAssetComponent = ({
     mutateAsync: fetchStocks,
     isLoading: isLoadingFetchStocks,
     reset: resetFetchStocks
-  } = useFetchStocks({
-    onError() {
-      setIsErrorFetchAssetPrice(true)
-    }
-  })
+  } = useFetchStocks({})
 
   const {
     mutateAsync: fetchCryptos,
     isLoading: isLoadingFetchCryptos,
     reset: resetFetchCryptos
-  } = useFetchCryptos({
-    onError() {
-      setIsErrorFetchAssetPrice(true)
-    }
-  })
+  } = useFetchCryptos({})
 
   const handleOpenSheet = useCallback(
     () => router.push(`${currentPath}?create-asset=true`),
-    []
+    [currentPath, router]
   )
 
-  const handleCloseSheet = useCallback(() => router.push(currentPath), [])
+  const handleCloseSheet = useCallback(
+    () => router.push(currentPath),
+    [currentPath, router]
+  )
 
   const onSubmit = useCallback(
     async (data: CreateAssetFormData) => {
@@ -115,8 +95,7 @@ export const useCreateAssetComponent = ({
               class: assetClass as ClassEnum,
               amount: data.amount,
               value: value.coins[0].value * data.amount,
-              goal: data.goal,
-              userId: user?.id ?? ''
+              goal: data.goal
             }
 
             createAsset(newAsset)
@@ -128,14 +107,14 @@ export const useCreateAssetComponent = ({
           const newAsset: AssetProps = {
             name: data.name,
             class: assetClass as ClassEnum,
-            amount: undefined,
             value: data.amount,
-            goal: data.goal,
-            userId: user?.id ?? ''
+            goal: data.goal
           }
 
           createAsset(newAsset)
+          return
         }
+
         await fetchStocks([data.name.toUpperCase()]).then(value => {
           if (!value) {
             resetFetchStocks()
@@ -145,11 +124,9 @@ export const useCreateAssetComponent = ({
           const newAsset: AssetProps = {
             name: data.name,
             class: assetClass as ClassEnum,
-
             amount: data.amount,
             value: value.result[0].value * data.amount,
-            goal: data.goal,
-            userId: user?.id ?? ''
+            goal: data.goal
           }
 
           createAsset(newAsset)
@@ -163,7 +140,14 @@ export const useCreateAssetComponent = ({
         })
       }
     },
-    [assetClass, fetchStocks, fetchCryptos, isErrorFetchAssetPrice]
+    [
+      assetClass,
+      fetchStocks,
+      fetchCryptos,
+      createAsset,
+      resetFetchCryptos,
+      resetFetchStocks
+    ]
   )
 
   return {
@@ -176,7 +160,6 @@ export const useCreateAssetComponent = ({
     register,
     errors,
     clearErrors,
-    setIsErrorFetchAssetPrice,
     isLoadingCreateAsset,
     isLoadingFetchStocks,
     isLoadingFetchCryptos,

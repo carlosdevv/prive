@@ -32,7 +32,6 @@ type AppContextType = {
   patrimonyValue: number
   setPatrimonyValue: Dispatch<SetStateAction<number>>
   userProps: UserSession | undefined
-  setUserProps: Dispatch<SetStateAction<UserSession | undefined>>
   handleUpdateUserGoal: (newGoal: number, classType: ClassEnum) => Promise<void>
   goalsValue: GoalsProps
   setGoalsValue: Dispatch<SetStateAction<GoalsProps>>
@@ -40,19 +39,25 @@ type AppContextType = {
   goalsSum: number
   handleGetGoalsSum: (value: GoalsProps) => void
   handleSetClassValue: (classSum: number, classType: ClassEnum) => Promise<void>
+  handleSetUserProps: (user: UserSession) => void
 }
 
 type AppProviderProps = {
+  user: UserSession
   children: ReactNode
 }
 
 export const AppContext = createContext<AppContextType>({} as AppContextType)
 
-export const AppProvider = ({ children }: AppProviderProps) => {
-  const [userProps, setUserProps] = useState<UserSession | undefined>()
+export const AppProvider = ({ user, children }: AppProviderProps) => {
+  const [userProps, setUserProps] = useState<UserSession | undefined>(user)
   const [patrimonyValue, setPatrimonyValue] = useState<number>(0)
   const [goalsValue, setGoalsValue] = useState<GoalsProps>({} as GoalsProps)
   const [goalsSum, setGoalsSum] = useState<number>(0)
+
+  const handleSetUserProps = useCallback((user: UserSession) => {
+    setUserProps(user)
+  }, [])
 
   const handleGetPatrimonyValue = useCallback(async () => {
     if (!userProps) return
@@ -60,16 +65,6 @@ export const AppProvider = ({ children }: AppProviderProps) => {
 
     if (patrimony) {
       setPatrimonyValue(patrimony)
-    }
-  }, [userProps])
-
-  const handleGetUserGoals = useCallback(async () => {
-    if (!userProps) return
-    const userClassGoals = await GetUserClasses(userProps)
-
-    if (userClassGoals) {
-      setGoalsValue(userClassGoals)
-      handleGetGoalsSum(userClassGoals)
     }
   }, [userProps])
 
@@ -95,19 +90,26 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     [userProps]
   )
 
-  const handleGetGoalsSum = useCallback(
-    (value: GoalsProps) => {
-      const sum = value.reduce((acc, curr) => {
-        if (curr.goal) {
-          return acc + curr.goal
-        }
-        return acc
-      }, 0)
+  const handleGetGoalsSum = useCallback((value: GoalsProps) => {
+    const sum = value.reduce((acc, curr) => {
+      if (curr.goal) {
+        return acc + curr.goal
+      }
+      return acc
+    }, 0)
 
-      setGoalsSum(sum)
-    },
-    [goalsValue]
-  )
+    setGoalsSum(sum)
+  }, [])
+
+  const handleGetUserGoals = useCallback(async () => {
+    if (!userProps) return
+    const userClassGoals = await GetUserClasses(userProps)
+
+    if (userClassGoals) {
+      setGoalsValue(userClassGoals)
+      handleGetGoalsSum(userClassGoals)
+    }
+  }, [handleGetGoalsSum, userProps])
 
   const handleSetClassValue = useCallback(
     async (classSum: number, classType: ClassEnum) => {
@@ -129,14 +131,14 @@ export const AppProvider = ({ children }: AppProviderProps) => {
         patrimonyValue,
         setPatrimonyValue,
         userProps,
-        setUserProps,
         handleUpdateUserGoal,
         goalsValue,
         setGoalsValue,
         handleGetUserGoals,
         goalsSum,
         handleGetGoalsSum,
-        handleSetClassValue
+        handleSetClassValue,
+        handleSetUserProps
       }}
     >
       {children}

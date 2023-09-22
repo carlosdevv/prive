@@ -1,36 +1,81 @@
+import { toast } from '@/hooks/useToast'
 import api from '@/lib/api'
+import { CreateAsset } from './repository/create-asset'
+import { DeleteAsset } from './repository/delete-asset'
+import { GetAssets } from './repository/get-assets'
+import { UpdateAsset } from './repository/update-asset'
 import {
-  CommonResponse,
   CreateAssetBody,
   CryptoResponse,
   DeleteAssetParams,
+  GetAssetsProps,
   TickerResponse,
   UpdateAssetParams
 } from './types'
 
-export const createAsset = async (body: CreateAssetBody) => {
-  const url = '/api/asset/create'
+export const getAssets = async (props: GetAssetsProps) => {
+  const { class: className } = props
+  const assets = await GetAssets({ className })
 
-  await api.post<CommonResponse>(url, body)
+  return assets
 }
 
-export const deleteAsset = async ({ name, userId }: DeleteAssetParams) => {
-  const url = '/api/asset/delete'
-
-  const queryParams = {
-    name: name,
-    userId: userId
+export const createAsset = async (body: CreateAssetBody) => {
+  try {
+    await CreateAsset(body)
+    toast({
+      title: 'Sucesso.',
+      description: 'Ativo criado com sucesso.'
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      toast({
+        title: 'Algo deu errado.',
+        description: error.message ?? 'Não foi possível criar o ativo.',
+        variant: 'destructive'
+      })
+    }
   }
 
-  await api.delete(url, {
-    params: queryParams
-  })
+  return
+}
+
+export const deleteAsset = async ({ name }: DeleteAssetParams) => {
+  try {
+    await DeleteAsset({ name })
+    toast({
+      title: 'Sucesso.',
+      description: 'Ativo removido com sucesso.'
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      toast({
+        title: 'Erro.',
+        description: error.message,
+        variant: 'destructive'
+      })
+    }
+  }
+  return
 }
 
 export const updateAsset = async (body: UpdateAssetParams) => {
-  const url = '/api/asset/update'
-
-  await api.patch(url, body)
+  try {
+    await UpdateAsset(body)
+    toast({
+      title: 'Sucesso.',
+      description: 'Ativo atualizado com sucesso.'
+    })
+  } catch (error) {
+    if (error instanceof Error) {
+      toast({
+        title: 'Erro.',
+        description: error.message,
+        variant: 'destructive'
+      })
+    }
+  }
+  return
 }
 
 export const fetchUSDCotation = async () => {

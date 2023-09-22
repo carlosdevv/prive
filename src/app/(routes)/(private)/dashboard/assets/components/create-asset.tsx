@@ -45,7 +45,6 @@ export function CreateAssetButton({ refetchAssets }: CreateAssetButtonProps) {
     register,
     errors,
     clearErrors,
-    setIsErrorFetchAssetPrice,
     isLoadingCreateAsset,
     isLoadingFetchStocks,
     isLoadingFetchCryptos,
@@ -179,7 +178,6 @@ export function CreateAssetButton({ refetchAssets }: CreateAssetButtonProps) {
                 Cancelar
               </Button>
               <Button
-                onClick={() => setIsErrorFetchAssetPrice(false)}
                 type="submit"
                 disabled={isLoadingCreateAsset}
                 className={cn({

@@ -4,13 +4,16 @@ export type CommonResponse = {
   message: string
 }
 
+export type GetAssetsProps = {
+  class?: ClassEnum
+}
+
 export type AssetProps = {
   name: string
   class: ClassEnum
   amount?: number
   value?: number
   goal?: number
-  userId: string
 }
 
 export type AssetDTO = {
@@ -48,12 +51,10 @@ export type CryptoResponse = {
 
 export type DeleteAssetParams = {
   name: string
-  userId: string
 }
 
 export type UpdateAssetParams = {
   name: string
-  userId: string
   value: number
   goal: number
 }

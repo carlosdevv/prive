@@ -1,25 +1,15 @@
 'use client'
 
-import { UserSession } from '@/app/(services)/user/types'
 import { Header } from '@/components/Header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Asset, ClassEnum } from '@prisma/client'
+import { ClassEnum } from '@prisma/client'
 import { useAssetsContentComponent } from '../actions/use-assets-content'
 import { AssetInfoManager } from './asset-info-manager'
 import { AssetsTableContent } from './assets-table-content'
 import { CreateAssetButton } from './create-asset'
 
-type AssetsTableProps = {
-  user: UserSession
-  assets: Asset[]
-}
-
-export default function AssetsPageContent({ assets, user }: AssetsTableProps) {
-  const { handleFormatAsset, validateAssetClass, refetchAssets } =
-    useAssetsContentComponent({
-      assets,
-      user
-    })
+export default function AssetsPageContent() {
+  const { refetchAssets } = useAssetsContentComponent()
 
   const TabsData = {
     tabsData: [
@@ -27,62 +17,33 @@ export default function AssetsPageContent({ assets, user }: AssetsTableProps) {
         value: ClassEnum.RENDA_FIXA,
         title: 'Renda Fixa',
         content: (
-          <AssetsTableContent
-            classType={ClassEnum.RENDA_FIXA}
-            isRendaFixa
-            assets={handleFormatAsset(validateAssetClass.RENDA_FIXA)}
-          />
+          <AssetsTableContent classType={ClassEnum.RENDA_FIXA} isRendaFixa />
         )
       },
       {
         value: ClassEnum.ACAO,
         title: 'Ações',
-        content: (
-          <AssetsTableContent
-            classType={ClassEnum.ACAO}
-            assets={handleFormatAsset(validateAssetClass.ACOES)}
-          />
-        )
+        content: <AssetsTableContent classType={ClassEnum.ACAO} />
       },
       {
         value: ClassEnum.FII,
         title: 'Fundos Imobiliários',
-        content: (
-          <AssetsTableContent
-            classType={ClassEnum.FII}
-            assets={handleFormatAsset(validateAssetClass.FII)}
-          />
-        )
+        content: <AssetsTableContent classType={ClassEnum.FII} />
       },
       {
         value: ClassEnum.STOCK,
         title: 'Stocks',
-        content: (
-          <AssetsTableContent
-            classType={ClassEnum.STOCK}
-            assets={handleFormatAsset(validateAssetClass.STOCKS)}
-          />
-        )
+        content: <AssetsTableContent classType={ClassEnum.STOCK} />
       },
       {
         value: ClassEnum.REIT,
         title: 'Reits',
-        content: (
-          <AssetsTableContent
-            classType={ClassEnum.REIT}
-            assets={handleFormatAsset(validateAssetClass.REITS)}
-          />
-        )
+        content: <AssetsTableContent classType={ClassEnum.REIT} />
       },
       {
         value: ClassEnum.CRYPTO,
         title: 'Crypto',
-        content: (
-          <AssetsTableContent
-            classType={ClassEnum.CRYPTO}
-            assets={handleFormatAsset(validateAssetClass.CRYPTO)}
-          />
-        )
+        content: <AssetsTableContent classType={ClassEnum.CRYPTO} />
       }
     ]
   }
