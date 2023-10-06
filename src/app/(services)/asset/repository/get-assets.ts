@@ -2,13 +2,15 @@
 
 import { db } from '@/lib/database'
 import { getCurrentUser } from '@/lib/session'
-import { ClassEnum } from '@prisma/client'
+import { Asset, ClassEnum } from '@prisma/client'
 
 type GetAssetsProps = {
   className?: ClassEnum
 }
 
-export async function GetAssets({ className }: GetAssetsProps) {
+export async function GetAssets({
+  className
+}: GetAssetsProps): Promise<Asset[]> {
   const user = await getCurrentUser()
   if (!user) throw new Error('Usuário não encontrado.')
 

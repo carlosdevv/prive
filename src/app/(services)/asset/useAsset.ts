@@ -1,34 +1,32 @@
-import { AxiosError } from 'axios'
+import { Asset } from '@prisma/client'
 import {
-  MutationOptions,
   UseMutationOptions,
   UseQueryOptions,
   useMutation,
   useQuery
-} from 'react-query'
+} from '@tanstack/react-query'
+import { AxiosError } from 'axios'
 import {
   createAsset,
   deleteAsset,
-  fetchCryptos,
-  fetchStocks,
   fetchUSDCotation,
   getAssets,
   updateAsset
 } from '.'
 import {
   CreateAssetBody,
-  CryptoResponse,
   DeleteAssetParams,
   GetAssetsProps,
-  TickerResponse,
   UpdateAssetParams
 } from './types'
-import { Asset } from '@prisma/client'
 
 export const useGetAssets = (
-  options?: UseMutationOptions<Asset[], AxiosError, GetAssetsProps>
+  props?: GetAssetsProps,
+  options?: UseQueryOptions<Asset[]>
 ) => {
-  return useMutation(getAssets, { ...options })
+  return useQuery<Asset[]>(['getAssets'], () => getAssets(props), {
+    ...options
+  })
 }
 
 export const useCreateAsset = (
@@ -49,23 +47,7 @@ export const useDeleteAsset = (
   return useMutation(deleteAsset, { ...options })
 }
 
-export const useFetchUSDCotation = (
-  options?: UseQueryOptions<string, AxiosError>
-) =>
-  useQuery<string, AxiosError>(['cotation-usd'], () => fetchUSDCotation(), {
-    ...options
-  })
-
-export const useFetchCryptos = (
-  options?: MutationOptions<CryptoResponse, AxiosError, string[]>
-) =>
-  useMutation(['cryptos'], fetchCryptos, {
-    ...options
-  })
-
-export const useFetchStocks = (
-  options?: MutationOptions<TickerResponse, AxiosError, string[]>
-) =>
-  useMutation(['stocks'], fetchStocks, {
+export const useFetchUSDCotation = (options?: UseQueryOptions<string>) =>
+  useQuery<string>(['cotation-usd'], fetchUSDCotation, {
     ...options
   })

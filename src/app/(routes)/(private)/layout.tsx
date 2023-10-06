@@ -7,7 +7,6 @@ import { BASE_ROUTES } from '@/lib/routes'
 import { getCurrentUser } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import { PrivateProviders } from './private-providers'
-import { GetAssets } from '@/app/(services)/asset/repository/get-assets'
 
 interface PrivateLayoutProps {
   children?: React.ReactNode
@@ -19,8 +18,6 @@ export default async function PrivateLayout({ children }: PrivateLayoutProps) {
   if (!user) {
     return redirect(BASE_ROUTES.LOGIN)
   }
-
-  const assets = await GetAssets({})
 
   return (
     <div className="flex min-h-screen flex-col space-y-6">
@@ -44,9 +41,7 @@ export default async function PrivateLayout({ children }: PrivateLayoutProps) {
           <Nav items={privateLayoutConfig.dashboardNavBar} />
         </aside>
         <main className="flex w-full flex-1 flex-col overflow-hidden">
-          <PrivateProviders user={user} assets={assets}>
-            {children}
-          </PrivateProviders>
+          <PrivateProviders user={user}>{children}</PrivateProviders>
         </main>
       </div>
     </div>

@@ -6,7 +6,8 @@ import { ClassEnum } from '@prisma/client'
 export async function UpdateClassValue(
   userId: string,
   className: ClassEnum,
-  value: number
+  value: number,
+  onCreateAsset?: boolean
 ) {
   const findedClass = await db.class.findFirst({
     where: {
@@ -24,7 +25,7 @@ export async function UpdateClassValue(
       id: findedClass.id
     },
     data: {
-      value: (findedClass.value ?? 0) + value
+      value: onCreateAsset ? (findedClass.value ?? 0) + value : value
     }
   })
 

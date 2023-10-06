@@ -2,8 +2,7 @@
 
 import {
   GetUserClasses,
-  UpdateClassGoal,
-  UpdateClassValue
+  UpdateClassGoal
 } from '@/app/(routes)/(private)/dashboard/(dashboard)/actions/classes'
 import { GetPatrimony } from '@/app/(routes)/(private)/dashboard/(dashboard)/actions/patrimony'
 import { UserSession } from '@/app/(services)/user/types'
@@ -38,7 +37,6 @@ type AppContextType = {
   handleGetUserGoals: () => Promise<void>
   goalsSum: number
   handleGetGoalsSum: (value: GoalsProps) => void
-  handleSetClassValue: (classSum: number, classType: ClassEnum) => Promise<void>
   handleSetUserProps: (user: UserSession) => void
 }
 
@@ -68,28 +66,6 @@ export const AppProvider = ({ user, children }: AppProviderProps) => {
     }
   }, [userProps])
 
-  const handleUpdateUserGoal = useCallback(
-    async (newGoal: number, classType: ClassEnum) => {
-      if (!userProps) return
-
-      try {
-        await UpdateClassGoal(userProps, newGoal, classType)
-        await handleGetUserGoals()
-        toast({
-          title: 'Sucesso.',
-          description: 'A meta foi atualizada com sucesso.'
-        })
-      } catch (error) {
-        toast({
-          title: 'Erro.',
-          description: 'Ocorreu um erro ao atualizar a meta, tente novamente.',
-          variant: 'destructive'
-        })
-      }
-    },
-    [userProps]
-  )
-
   const handleGetGoalsSum = useCallback((value: GoalsProps) => {
     const sum = value.reduce((acc, curr) => {
       if (curr.goal) {
@@ -111,13 +87,26 @@ export const AppProvider = ({ user, children }: AppProviderProps) => {
     }
   }, [handleGetGoalsSum, userProps])
 
-  const handleSetClassValue = useCallback(
-    async (classSum: number, classType: ClassEnum) => {
+  const handleUpdateUserGoal = useCallback(
+    async (newGoal: number, classType: ClassEnum) => {
       if (!userProps) return
 
-      await UpdateClassValue(userProps, classSum, classType)
+      try {
+        await UpdateClassGoal(userProps, newGoal, classType)
+        await handleGetUserGoals()
+        toast({
+          title: 'Sucesso.',
+          description: 'A meta foi atualizada com sucesso.'
+        })
+      } catch (error) {
+        toast({
+          title: 'Erro.',
+          description: 'Ocorreu um erro ao atualizar a meta, tente novamente.',
+          variant: 'destructive'
+        })
+      }
     },
-    [userProps]
+    [handleGetUserGoals, userProps]
   )
 
   useEffect(() => {
@@ -137,7 +126,6 @@ export const AppProvider = ({ user, children }: AppProviderProps) => {
         handleGetUserGoals,
         goalsSum,
         handleGetGoalsSum,
-        handleSetClassValue,
         handleSetUserProps
       }}
     >

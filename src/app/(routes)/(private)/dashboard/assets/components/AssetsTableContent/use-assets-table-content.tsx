@@ -1,8 +1,8 @@
 import { AssetDTO } from '@/app/(services)/asset/types'
-import { useAppContext } from '@/contexts/useAppContext'
 import { useAssetContext } from '@/contexts/useAssetContext'
 import { ClassEnum } from '@prisma/client'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useRouter, usePathname } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
 
 type AssetsTableContentComponentProps = {
   classType: ClassEnum
@@ -10,23 +10,13 @@ type AssetsTableContentComponentProps = {
 export const useAssetsTableContentComponent = ({
   classType
 }: AssetsTableContentComponentProps) => {
-  const { handleSetClassValue } = useAppContext()
-  const {
-    refetchAssets,
-    assetsList,
-    isLoadingGetAssets,
-    isLoadingRefetchAssets
-  } = useAssetContext()
+  const router = useRouter()
+  const pathname = usePathname()
+
+  const { assetsList, handleGetAssets, isLoadingAssets, handleSetTabSelected } =
+    useAssetContext()
 
   const [formattedAssets, setFormattedAssets] = useState<AssetDTO[]>([])
-
-  const handleSumAssets = useMemo(() => {
-    if (!formattedAssets) return
-    const sum = formattedAssets.reduce((acc, item) => {
-      return acc + (item.price ?? 0) * (item.amount ?? 0)
-    }, 0)
-    return sum
-  }, [formattedAssets])
 
   const handleFormatAssets = useCallback(async () => {
     const isRendaFixa =
@@ -73,32 +63,26 @@ export const useAssetsTableContentComponent = ({
         isBuy: false
       }
     })
-    setFormattedAssets(assets)
+
+    setFormattedAssets(() => [...assets])
   }, [assetsList])
-
-  useEffect(() => {
-    if (handleSumAssets !== undefined) {
-      handleSetClassValue(handleSumAssets, classType)
-    }
-  }, [handleSumAssets, handleSetClassValue, classType])
-
-  useEffect(() => {
-    refetchAssets(classType)
-  }, [classType, refetchAssets])
 
   useEffect(() => {
     if (assetsList.length > 0) {
       handleFormatAssets()
-      return
+    } else {
+      setFormattedAssets([])
     }
-
-    setFormattedAssets([])
   }, [assetsList, handleFormatAssets])
 
+  useEffect(() => {
+    router.replace(`${pathname}?tabSelected=${classType}`)
+    handleSetTabSelected(classType)
+    handleGetAssets(classType)
+  }, [classType, handleSetTabSelected, handleGetAssets, router, pathname])
+
   return {
-    assetsList,
     formattedAssets,
-    isLoadingGetAssets,
-    isLoadingRefetchAssets
+    isLoadingAssets
   }
 }

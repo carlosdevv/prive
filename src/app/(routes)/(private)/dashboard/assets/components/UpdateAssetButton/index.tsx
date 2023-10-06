@@ -20,7 +20,7 @@ import {
   SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet'
-import { useUpdateAssetComponent } from '../actions/use-update-asset'
+import { useUpdateAssetComponent } from './use-update-asset'
 
 interface EditAssetButtonProps extends ButtonProps {
   assetName: string

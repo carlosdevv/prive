@@ -20,7 +20,7 @@ export const privateLayoutConfig: PrivateLayoutConfig = {
     },
     {
       title: 'Ativos',
-      href: `${BASE_ROUTES.DASHBOARD}/${DASHBOARD_ROUTES.ASSETS}`,
+      href: `${BASE_ROUTES.DASHBOARD}/${DASHBOARD_ROUTES.ASSETS}?tabSelected=RENDA_FIXA`,
       icon: 'wallet'
     }
   ],

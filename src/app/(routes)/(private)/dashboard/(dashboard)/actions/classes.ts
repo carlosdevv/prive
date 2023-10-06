@@ -36,28 +36,3 @@ export async function UpdateClassGoal(
     }
   })
 }
-
-export async function UpdateClassValue(
-  user: UserSession,
-  newValue: number,
-  classType: ClassEnum
-) {
-  const userClass = await db.class.findFirst({
-    where: {
-      userId: user.id,
-      class: classType
-    }
-  })
-
-  if (!userClass) return
-
-  await db.class.update({
-    where: {
-      id: userClass.id,
-      class: classType
-    },
-    data: {
-      value: newValue
-    }
-  })
-}

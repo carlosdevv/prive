@@ -1,8 +1,8 @@
 import { DataTable } from '@/components/ui/data-table'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ClassEnum } from '@prisma/client'
-import { useAssetsTableContentComponent } from '../actions/use-assets-table-content'
-import { assetColumns, rendaFixaColumns } from './columns'
+import { rendaFixaColumns, assetColumns } from '../columns'
+import { useAssetsTableContentComponent } from './use-assets-table-content'
 
 type AssetsTableContentProps = {
   classType: ClassEnum
@@ -13,11 +13,13 @@ export function AssetsTableContent({
   classType,
   isRendaFixa = false
 }: AssetsTableContentProps) {
-  const { formattedAssets, isLoadingGetAssets, isLoadingRefetchAssets } =
-    useAssetsTableContentComponent({ classType })
+  const { formattedAssets, isLoadingAssets } = useAssetsTableContentComponent({
+    classType
+  })
+
   return (
     <>
-      {isLoadingGetAssets || isLoadingRefetchAssets ? (
+      {isLoadingAssets ? (
         <Skeleton className="w-full rounded-md h-96" />
       ) : (
         <DataTable

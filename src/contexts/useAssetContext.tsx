@@ -1,14 +1,10 @@
 'use client'
 
+import { fetchCryptos, fetchStocks, getAssets } from '@/app/(services)/asset'
 import { UpdateAssetValue } from '@/app/(services)/asset/repository/update-asset-value'
-import { CryptoResponse, TickerResponse } from '@/app/(services)/asset/types'
-import {
-  useFetchCryptos,
-  useFetchStocks,
-  useGetAssets
-} from '@/app/(services)/asset/useAsset'
+import { UpdateClassValue } from '@/app/(services)/class/repository/update-class-value'
 import { Asset, ClassEnum } from '@prisma/client'
-import { AxiosError } from 'axios'
+import { QueryClient, useQueryClient } from '@tanstack/react-query'
 import {
   Dispatch,
   ReactNode,
@@ -18,7 +14,7 @@ import {
   useContext,
   useState
 } from 'react'
-import { UseMutateAsyncFunction } from 'react-query'
+import { useAppContext } from './useAppContext'
 
 export type AssetInfoManagerProps = {
   investmentValue: number
@@ -28,14 +24,15 @@ export type AssetInfoManagerProps = {
 
 type AssetContextType = {
   assetsList: Asset[]
-  refetchAssets: (className?: ClassEnum) => Promise<void>
+  handleGetAssets: (className?: ClassEnum) => Promise<void>
+  handleRefetchAssetsOnCreate: (className: ClassEnum) => Promise<void>
   assetInfoManagerProps: AssetInfoManagerProps
   setAssetInfoManagerProps: Dispatch<SetStateAction<AssetInfoManagerProps>>
   handleSetAssetsList: (assets: Asset[]) => void
-  isLoadingGetAssets?: boolean
-  fetchStocks: UseMutateAsyncFunction<TickerResponse, AxiosError, string[]>
-  fetchCryptos: UseMutateAsyncFunction<CryptoResponse, AxiosError, string[]>
-  isLoadingRefetchAssets?: boolean
+  isLoadingAssets?: boolean
+  tabSelected: ClassEnum
+  handleSetTabSelected: (tab: ClassEnum) => void
+  queryClient: QueryClient
 }
 
 type AssetProviderProps = {
@@ -47,9 +44,14 @@ export const AssetContext = createContext<AssetContextType>(
 )
 
 export const AssetProvider = ({ children }: AssetProviderProps) => {
+  const queryClient = useQueryClient()
+  const { userProps } = useAppContext()
+
   const [assetsList, setAssetsList] = useState<Asset[]>([])
-  const [isLoadingRefetchAssets, setIsLoadingRefetchAssets] =
-    useState<boolean>(false)
+  const [tabSelected, setTabSelected] = useState<ClassEnum>(
+    ClassEnum.RENDA_FIXA
+  )
+  const [isLoadingAssets, setIsLoadingAssets] = useState<boolean>(false)
   const [assetInfoManagerProps, setAssetInfoManagerProps] =
     useState<AssetInfoManagerProps>({
       investmentValue: 1000,
@@ -57,118 +59,165 @@ export const AssetProvider = ({ children }: AssetProviderProps) => {
       investmentAssetsAmount: 1
     })
 
-  const { mutateAsync: GetAssets, isLoading: isLoadingGetAssets } =
-    useGetAssets()
-  const { mutateAsync: fetchStocks } = useFetchStocks()
-  const { mutateAsync: fetchCryptos } = useFetchCryptos()
-
   const handleSetAssetsList = useCallback((assets: Asset[]) => {
     setAssetsList(assets)
   }, [])
 
-  const handleUpdateAssetValue = useCallback(
+  const handleUpdateAssetPrice = useCallback(
     async (ticker: string, newValue: number, className?: ClassEnum) => {
       if (!className) return
 
       await UpdateAssetValue(ticker, newValue)
-      const updatedAssetWithNewValue = await GetAssets({ class: className })
 
-      if (updatedAssetWithNewValue) return updatedAssetWithNewValue
+      const updatedAssetsWithNewValue = await queryClient.fetchQuery({
+        queryKey: ['getAssets'],
+        queryFn: () => getAssets({ class: className })
+      })
+
+      if (!updatedAssetsWithNewValue) return
+
+      handleSetAssetsList(updatedAssetsWithNewValue)
     },
-    [GetAssets]
+    [handleSetAssetsList, queryClient]
   )
 
-  const refetchAssets = useCallback(
+  const handleSumAssetsAndUpdateClass = useCallback(
+    async (assets: Asset[], classType?: ClassEnum, onCreateAsset?: boolean) => {
+      if (!userProps || !classType) return
+
+      const assetsSum = assets.reduce((acc, curr) => {
+        return acc + (curr.value ?? 0)
+      }, 0)
+
+      await UpdateClassValue(userProps.id, classType, assetsSum, onCreateAsset)
+    },
+    [userProps]
+  )
+
+  const handleGetAssets = useCallback(
     async (className?: ClassEnum) => {
-      setIsLoadingRefetchAssets(true)
-      setAssetsList([])
-      const refetchedAssets = await GetAssets({ class: className })
-      if (refetchedAssets.length < 1) {
-        setIsLoadingRefetchAssets(false)
-        setAssetsList([])
+      setIsLoadingAssets(true)
+
+      const assets = await queryClient.fetchQuery({
+        queryKey: ['getAssets'],
+        queryFn: () => getAssets({ class: className })
+      })
+
+      if (assets.length < 1) {
+        setIsLoadingAssets(false)
+        handleSetAssetsList([])
         return
       }
 
-      const isRendaFixa = refetchedAssets.some(
+      const isRendaFixa = assets.some(
         asset => asset.class === ClassEnum.RENDA_FIXA
       )
 
-      const isCrypto = refetchedAssets.some(
-        asset => asset.class === ClassEnum.CRYPTO
-      )
+      const isCrypto = assets.some(asset => asset.class === ClassEnum.CRYPTO)
 
       if (isRendaFixa) {
-        setIsLoadingRefetchAssets(false)
-        setAssetsList(refetchedAssets)
+        setIsLoadingAssets(false)
+        handleSetAssetsList(assets)
+
+        await handleSumAssetsAndUpdateClass(assets, ClassEnum.RENDA_FIXA)
         return
       }
 
       if (isCrypto) {
-        const cryptoData = await fetchCryptos(
-          refetchedAssets.map(item => item.name)
-        )
+        const cryptoData = await queryClient.fetchQuery({
+          queryKey: ['fetchCryptos'],
+          queryFn: () => fetchCryptos(assets.map(asset => asset.name)),
+          staleTime: 1000 * 60 * 60 // 1 hour
+        })
 
-        if (cryptoData) {
-          cryptoData.coins.map(async item => {
-            const asset = refetchedAssets.find(
-              asset => asset.name === item.coin
+        if (!cryptoData) return
+
+        cryptoData.coins.map(async item => {
+          const asset = assets.find(asset => asset.name === item.coin)
+
+          if (asset && asset.value !== item.value) {
+            await handleUpdateAssetPrice(
+              item.coin,
+              item.value,
+              ClassEnum.CRYPTO
             )
-            if (asset && asset.value !== item.value) {
-              const updatedAssetsPrices = await handleUpdateAssetValue(
-                item.coin,
-                item.value,
-                ClassEnum.CRYPTO
-              )
 
-              if (!updatedAssetsPrices) return
-
-              setIsLoadingRefetchAssets(false)
-              setAssetsList(updatedAssetsPrices)
-            }
-          })
-        }
+            setIsLoadingAssets(false)
+            await handleSumAssetsAndUpdateClass(assets, ClassEnum.CRYPTO)
+            return
+          }
+        })
       } else {
-        const stockData = await fetchStocks(
-          refetchedAssets.map(item => item.name)
-        )
+        const stockData = await queryClient.fetchQuery({
+          queryKey: ['fetchStocks'],
+          queryFn: () => fetchStocks(assets.map(asset => asset.name)),
+          staleTime: 1000 * 60 * 60 // 1 hour
+        })
 
-        if (stockData) {
-          stockData.result.map(async item => {
-            const asset = refetchedAssets.find(
-              asset => asset.name === item.ticker
-            )
+        if (!stockData) return
 
-            if (asset && asset.value !== item.value) {
-              const updatedAssetsPrices = await handleUpdateAssetValue(
-                item.ticker,
-                item.value,
-                className
-              )
+        stockData.result.map(async item => {
+          const asset = assets.find(asset => asset.name === item.ticker)
 
-              if (!updatedAssetsPrices) return
-              setIsLoadingRefetchAssets(false)
-              setAssetsList(updatedAssetsPrices)
-            }
-          })
-        }
+          if (asset && asset.value !== item.value) {
+            await handleUpdateAssetPrice(item.ticker, item.value, className)
+
+            setIsLoadingAssets(false)
+            await handleSumAssetsAndUpdateClass(assets, className)
+            return
+          }
+        })
       }
     },
 
-    [GetAssets, fetchCryptos, fetchStocks, handleUpdateAssetValue]
+    [
+      handleSetAssetsList,
+      handleSumAssetsAndUpdateClass,
+      handleUpdateAssetPrice,
+      queryClient
+    ]
+  )
+
+  const handleSetTabSelected = useCallback((tab: ClassEnum) => {
+    setTabSelected(tab)
+  }, [])
+
+  const handleRefetchAssetsOnCreate = useCallback(
+    async (className: ClassEnum) => {
+      setIsLoadingAssets(true)
+
+      const assets = await queryClient.fetchQuery({
+        queryKey: ['getAssets'],
+        queryFn: () => getAssets({ class: className })
+      })
+
+      if (assets.length < 1) {
+        setIsLoadingAssets(false)
+        handleSetAssetsList([])
+        return
+      }
+
+      handleSetAssetsList(assets)
+      await handleSumAssetsAndUpdateClass(assets, className, true)
+      setIsLoadingAssets(false)
+      return
+    },
+    [handleSetAssetsList, handleSumAssetsAndUpdateClass, queryClient]
   )
 
   return (
     <AssetContext.Provider
       value={{
         assetsList,
-        refetchAssets,
+        handleGetAssets,
         assetInfoManagerProps,
         setAssetInfoManagerProps,
         handleSetAssetsList,
-        isLoadingGetAssets,
-        fetchStocks,
-        fetchCryptos,
-        isLoadingRefetchAssets
+        isLoadingAssets,
+        tabSelected,
+        handleSetTabSelected,
+        queryClient,
+        handleRefetchAssetsOnCreate
       }}
     >
       {children}

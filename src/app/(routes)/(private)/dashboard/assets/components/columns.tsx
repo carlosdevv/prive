@@ -4,7 +4,7 @@ import { AssetDTO } from '@/app/(services)/asset/types'
 import { Badge } from '@/components/ui/badge'
 import { formatCurrency } from '@/utils/format'
 import { ColumnDef } from '@tanstack/react-table'
-import { UpdateAssetButton } from './update-asset'
+import { UpdateAssetButton } from './UpdateAssetButton'
 
 export const rendaFixaColumns: ColumnDef<AssetDTO>[] = [
   {

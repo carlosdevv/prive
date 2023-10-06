@@ -16,7 +16,7 @@ export async function UpdateAssetValue(name: string, newValue: number) {
     }
   })
 
-  if (!asset) return
+  if (!asset) throw new Error('Ativo não encontrado.')
 
   await db.asset.update({
     where: {

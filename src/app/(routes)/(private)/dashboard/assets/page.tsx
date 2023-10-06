@@ -1,7 +1,7 @@
 import { LayoutPage } from '@/components/LayoutPage'
 import { Suspense } from 'react'
-import AssetsPageContent from './components/assets-content'
 import AssetPageLoading from './loading'
+import AssetsPageContent from './components/AssetsPageContent'
 
 export default async function AssetsPage() {
   return (

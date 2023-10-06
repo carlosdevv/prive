@@ -1,21 +1,14 @@
+import { fetchCryptos, fetchStocks } from '@/app/(services)/asset'
 import { AssetProps } from '@/app/(services)/asset/types'
-import {
-  useCreateAsset,
-  useFetchCryptos,
-  useFetchStocks
-} from '@/app/(services)/asset/useAsset'
+import { useCreateAsset } from '@/app/(services)/asset/useAsset'
+import { useAssetContext } from '@/contexts/useAssetContext'
 import { toast } from '@/hooks/useToast'
-import { BASE_ROUTES, DASHBOARD_ROUTES } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ClassEnum } from '@prisma/client'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
-
-type CustomHookCreateAssetComponent = {
-  refetchAssets: () => void
-}
 
 const createAssetSchema = z.object({
   name: z.string().nonempty('É necessário informar um ativo.'),
@@ -31,9 +24,7 @@ const createAssetSchema = z.object({
 
 type CreateAssetFormData = z.infer<typeof createAssetSchema>
 
-export const useCreateAssetComponent = ({
-  refetchAssets
-}: CustomHookCreateAssetComponent) => {
+export const useCreateAssetComponent = () => {
   const {
     register,
     handleSubmit,
@@ -43,66 +34,43 @@ export const useCreateAssetComponent = ({
   } = useForm<CreateAssetFormData>({
     resolver: zodResolver(createAssetSchema)
   })
-
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const router = useRouter()
+  const { tabSelected, queryClient, handleRefetchAssetsOnCreate } =
+    useAssetContext()
 
   const [assetClass, setAssetClass] = useState('RENDA_FIXA')
-  const isOpenSheet: boolean = searchParams?.get('create-asset') ? true : false
-  const currentPath = `${BASE_ROUTES.DASHBOARD}${DASHBOARD_ROUTES.ASSETS}`
+  const isOpenSheet: boolean = searchParams?.get('createAsset') ? true : false
 
-  const { mutate: createAsset, isLoading: isLoadingCreateAsset } =
+  const { mutateAsync: createAsset, isLoading: isLoadingCreateAsset } =
     useCreateAsset({
-      onSuccess: () => {
-        refetchAssets()
+      onSuccess: async () => {
+        if (tabSelected === (assetClass as ClassEnum)) {
+          await handleRefetchAssetsOnCreate(assetClass as ClassEnum)
+        }
+
         handleCloseSheet()
       }
     })
 
-  const {
-    mutateAsync: fetchStocks,
-    isLoading: isLoadingFetchStocks,
-    reset: resetFetchStocks
-  } = useFetchStocks({})
-
-  const {
-    mutateAsync: fetchCryptos,
-    isLoading: isLoadingFetchCryptos,
-    reset: resetFetchCryptos
-  } = useFetchCryptos({})
-
   const handleOpenSheet = useCallback(
-    () => router.push(`${currentPath}?create-asset=true`),
-    [currentPath, router]
+    () =>
+      router.push(`${pathname}?${searchParams?.toString()}&createAsset=true`),
+    [pathname, router, searchParams]
   )
 
   const handleCloseSheet = useCallback(
-    () => router.push(currentPath),
-    [currentPath, router]
+    () =>
+      router.push(
+        `${pathname}?tabSelected=${searchParams?.get('tabSelected')}`
+      ),
+    [pathname, router, searchParams]
   )
 
   const onSubmit = useCallback(
     async (data: CreateAssetFormData) => {
       try {
-        if (assetClass === ClassEnum.CRYPTO) {
-          await fetchCryptos([data.name.toUpperCase()]).then(value => {
-            if (!value) {
-              resetFetchCryptos()
-              throw new Error()
-            }
-            const newAsset: AssetProps = {
-              name: data.name,
-              class: assetClass as ClassEnum,
-              amount: data.amount,
-              value: value.coins[0].value * data.amount,
-              goal: data.goal
-            }
-
-            createAsset(newAsset)
-            return
-          })
-        }
-
         if (assetClass === ClassEnum.RENDA_FIXA) {
           const newAsset: AssetProps = {
             name: data.name,
@@ -111,27 +79,47 @@ export const useCreateAssetComponent = ({
             goal: data.goal
           }
 
-          createAsset(newAsset)
+          await createAsset(newAsset)
           return
         }
 
-        await fetchStocks([data.name.toUpperCase()]).then(value => {
-          if (!value) {
-            resetFetchStocks()
-            throw new Error()
-          }
+        if (assetClass === ClassEnum.CRYPTO) {
+          const cryptoData = await queryClient.fetchQuery({
+            queryKey: ['fetchCryptos'],
+            queryFn: () => fetchCryptos([data.name.toUpperCase()])
+          })
 
-          const newAsset: AssetProps = {
+          if (!cryptoData) throw new Error()
+
+          const newCryptoAsset: AssetProps = {
             name: data.name,
             class: assetClass as ClassEnum,
             amount: data.amount,
-            value: value.result[0].value * data.amount,
+            value: cryptoData.coins[0].value * data.amount,
             goal: data.goal
           }
 
-          createAsset(newAsset)
+          await createAsset(newCryptoAsset)
           return
+        }
+
+        const stockData = await queryClient.fetchQuery({
+          queryKey: ['fetchStocks'],
+          queryFn: () => fetchStocks([data.name.toUpperCase()])
         })
+
+        if (!stockData) throw new Error()
+
+        const newAsset: AssetProps = {
+          name: data.name,
+          class: assetClass as ClassEnum,
+          amount: data.amount,
+          value: stockData.result[0].value * data.amount,
+          goal: data.goal
+        }
+
+        await createAsset(newAsset)
+        return
       } catch (error) {
         toast({
           title: 'Algo deu errado.',
@@ -140,14 +128,7 @@ export const useCreateAssetComponent = ({
         })
       }
     },
-    [
-      assetClass,
-      fetchStocks,
-      fetchCryptos,
-      createAsset,
-      resetFetchCryptos,
-      resetFetchStocks
-    ]
+    [assetClass, queryClient, createAsset]
   )
 
   return {
@@ -161,8 +142,6 @@ export const useCreateAssetComponent = ({
     errors,
     clearErrors,
     isLoadingCreateAsset,
-    isLoadingFetchStocks,
-    isLoadingFetchCryptos,
     handleOpenSheet,
     handleCloseSheet
   }

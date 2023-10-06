@@ -13,9 +13,8 @@ import {
   UpdateAssetParams
 } from './types'
 
-export const getAssets = async (props: GetAssetsProps) => {
-  const { class: className } = props
-  const assets = await GetAssets({ className })
+export const getAssets = async (props?: GetAssetsProps) => {
+  const assets = await GetAssets({ className: props?.class })
 
   return assets
 }
@@ -91,11 +90,13 @@ export const fetchUSDCotation = async () => {
 }
 
 export const fetchCryptos = async (coins: string[]) => {
+  const brapiToken = process.env.NEXT_PUBLIC_BRAPI_TOKEN
   const url = `https://brapi.dev/api/v2/crypto`
 
   const queryParams = {
     coin: coins.toString(),
-    currency: 'BRL'
+    currency: 'BRL',
+    token: brapiToken
   }
 
   const { data } = await api.get(url, {
@@ -115,13 +116,15 @@ export const fetchCryptos = async (coins: string[]) => {
 }
 
 export const fetchStocks = async (tickers: string[]) => {
+  const brapiToken = process.env.NEXT_PUBLIC_BRAPI_TOKEN
   const url = `https://brapi.dev/api/quote/${tickers.toString()}`
 
   const queryParams = {
     range: '1d',
     interval: '1h',
     fundamental: false,
-    dividends: false
+    dividends: false,
+    token: brapiToken
   }
 
   const { data } = await api.get(url, {
