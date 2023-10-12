@@ -17,6 +17,7 @@ export type AssetProps = {
 }
 
 export type AssetDTO = {
+  id: string
   name: string
   value?: number | null
   amount?: number | null

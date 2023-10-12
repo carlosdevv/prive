@@ -1,8 +1,7 @@
 import { useDeleteAsset, useUpdateAsset } from '@/app/(services)/asset/useAsset'
 import { useAssetContext } from '@/contexts/useAssetContext'
-import { BASE_ROUTES, DASHBOARD_ROUTES } from '@/lib/routes'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -31,6 +30,15 @@ export const useUpdateAssetComponent = ({
   assetGoal,
   assetValue
 }: CustomHookUpdateAssetComponent) => {
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const router = useRouter()
+
+  const isOpenRemoveAssetDialog: boolean = searchParams?.get('deleteAsset')
+    ? true
+    : false
+  const isOpenSheet: boolean = searchParams?.get('updateAsset') ? true : false
+
   const {
     register,
     handleSubmit,
@@ -44,67 +52,69 @@ export const useUpdateAssetComponent = ({
     }
   })
 
-  const searchParams = useSearchParams()
-  const router = useRouter()
-  const { refetchAssets } = useAssetContext()
-  const isOpenAlertDialog: boolean = searchParams?.get('delete-asset')
-    ? true
-    : false
-  const isOpenSheet: boolean = searchParams?.get('update-asset') ? true : false
-  const currentPath = `${BASE_ROUTES.DASHBOARD}${DASHBOARD_ROUTES.ASSETS}`
+  const { tabSelected, handleGetAssets } = useAssetContext()
 
-  const { mutate: updateAsset, isLoading: isUpdatingAsset } = useUpdateAsset({
-    onSuccess: async () => {
-      await refetchAssets()
-      handleCloseSheet()
-    }
-  })
+  const { mutateAsync: updateAsset, isLoading: isUpdatingAsset } =
+    useUpdateAsset({
+      onSuccess: async () => {
+        await handleGetAssets(tabSelected)
+        handleCloseSheet()
+      }
+    })
 
-  const { mutate: deleteAsset, isLoading: isDeletingAsset } = useDeleteAsset({
-    onSuccess: async () => {
-      await refetchAssets()
-      handleCloseSheet()
-    }
-  })
+  const { mutateAsync: deleteAsset, isLoading: isDeletingAsset } =
+    useDeleteAsset({
+      onSuccess: async () => {
+        await handleGetAssets(tabSelected)
+        handleCloseDeleteSheet()
+        handleCloseSheet()
+      }
+    })
 
-  const handleOpenSheet = useCallback(
-    () => router.push(`${currentPath}?update-asset=true`),
-    []
-  )
+  const handleOpenSheet = useCallback(() => {
+    router.push(
+      `${pathname}?${searchParams?.toString()}&updateAsset=true&asset=${assetName}&value=${assetValue}&goal=${assetGoal}`
+    )
+  }, [assetGoal, assetName, assetValue, pathname, router, searchParams])
 
   const handleOpenDeleteSheet = useCallback(() => {
-    if (isOpenAlertDialog) return
-    router.push(`${currentPath}?update-asset=true&delete-asset=true`)
-  }, [])
+    if (isOpenRemoveAssetDialog) return
+    router.push(`${pathname}?${searchParams?.toString()}&deleteAsset=true`)
+  }, [isOpenRemoveAssetDialog, pathname, router, searchParams])
 
-  const handleCloseSheet = useCallback(() => router.replace(currentPath), [])
-
-  const handleCloseDeleteSheet = useCallback(
-    () => router.replace(`${currentPath}?update-asset=true`),
-    []
+  const handleCloseSheet = useCallback(
+    () =>
+      router.push(
+        `${pathname}?tabSelected=${searchParams?.get('tabSelected')}`
+      ),
+    [pathname, router, searchParams]
   )
 
-  const handleRemoveAsset = useCallback(() => {
-    deleteAsset({ name: assetName })
-    handleCloseDeleteSheet()
-  }, [])
+  const handleCloseDeleteSheet = useCallback(() => router.back(), [router])
 
-  function onSubmit(data: UpdateAssetFormData) {
-    const params = {
-      ...data,
-      name: assetName
-    }
-    updateAsset(params)
-  }
+  const handleRemoveAsset = useCallback(async () => {
+    await deleteAsset({ name: assetName })
+  }, [assetName, deleteAsset])
+
+  const onUpdateAsset = useCallback(
+    async (data: UpdateAssetFormData) => {
+      const params = {
+        ...data,
+        name: assetName
+      }
+      await updateAsset(params)
+    },
+    [assetName, updateAsset]
+  )
 
   return {
-    isOpenAlertDialog,
+    isOpenRemoveAssetDialog,
     handleCloseDeleteSheet,
     isOpenSheet,
     handleCloseSheet,
     reset,
     handleSubmit,
-    onSubmit,
+    onUpdateAsset,
     register,
     errors,
     isUpdatingAsset,

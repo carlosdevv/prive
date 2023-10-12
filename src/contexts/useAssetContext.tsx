@@ -82,14 +82,14 @@ export const AssetProvider = ({ children }: AssetProviderProps) => {
   )
 
   const handleSumAssetsAndUpdateClass = useCallback(
-    async (assets: Asset[], classType?: ClassEnum, onCreateAsset?: boolean) => {
+    async (assets: Asset[], classType?: ClassEnum) => {
       if (!userProps || !classType) return
 
       const assetsSum = assets.reduce((acc, curr) => {
         return acc + (curr.value ?? 0)
       }, 0)
 
-      await UpdateClassValue(userProps.id, classType, assetsSum, onCreateAsset)
+      await UpdateClassValue(userProps.id, classType, assetsSum)
     },
     [userProps]
   )
@@ -106,6 +106,7 @@ export const AssetProvider = ({ children }: AssetProviderProps) => {
       if (assets.length < 1) {
         setIsLoadingAssets(false)
         handleSetAssetsList([])
+        await handleSumAssetsAndUpdateClass(assets, className)
         return
       }
 
@@ -191,14 +192,8 @@ export const AssetProvider = ({ children }: AssetProviderProps) => {
         queryFn: () => getAssets({ class: className })
       })
 
-      if (assets.length < 1) {
-        setIsLoadingAssets(false)
-        handleSetAssetsList([])
-        return
-      }
-
       handleSetAssetsList(assets)
-      await handleSumAssetsAndUpdateClass(assets, className, true)
+      await handleSumAssetsAndUpdateClass(assets, className)
       setIsLoadingAssets(false)
       return
     },

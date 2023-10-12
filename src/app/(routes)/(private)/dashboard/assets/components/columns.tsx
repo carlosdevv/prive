@@ -48,12 +48,14 @@ export const rendaFixaColumns: ColumnDef<AssetDTO>[] = [
   },
   {
     header: 'Opções',
-    cell: ({ row }) => {
-      const assetName = row.original.name
-      const assetValue = row.original.value as number
-      const assetGoal = row.original.goal as number
+    cell: ({ row, cell }) => {
+      const assetName: string = row.getValue('name')
+      const assetValue: number = row.getValue('value')
+      const assetGoal: number = row.getValue('goal')
+
       return (
         <UpdateAssetButton
+          key={cell.id}
           assetName={assetName}
           assetValue={assetValue}
           assetGoal={assetGoal}
@@ -123,12 +125,14 @@ export const assetColumns: ColumnDef<AssetDTO>[] = [
   },
   {
     header: 'Opções',
-    cell: ({ row }) => {
-      const assetName = row.original.name
-      const assetValue = row.original.amount as number
-      const assetGoal = row.original.goal as number
+    cell: ({ row, cell }) => {
+      const assetName = row.getValue('name') as string
+      const assetValue = row.getValue('value') as number
+      const assetGoal = row.getValue('goal') as number
+
       return (
         <UpdateAssetButton
+          key={cell.id}
           assetName={assetName}
           assetValue={assetValue}
           assetGoal={assetGoal}

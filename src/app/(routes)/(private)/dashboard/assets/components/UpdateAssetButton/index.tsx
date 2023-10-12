@@ -36,11 +36,11 @@ export function UpdateAssetButton({
   isRendaFixa
 }: EditAssetButtonProps) {
   const {
-    isOpenAlertDialog,
+    isOpenRemoveAssetDialog,
     isOpenSheet,
     reset,
     handleSubmit,
-    onSubmit,
+    onUpdateAsset,
     register,
     errors,
     isUpdatingAsset,
@@ -53,8 +53,16 @@ export function UpdateAssetButton({
   } = useUpdateAssetComponent({ assetName, assetGoal, assetValue })
 
   return (
-    <AlertDialog open={isOpenAlertDialog} onOpenChange={handleOpenDeleteSheet}>
-      <Sheet open={isOpenSheet} onOpenChange={handleOpenSheet}>
+    <AlertDialog
+      open={isOpenRemoveAssetDialog}
+      onOpenChange={open =>
+        open ? handleOpenDeleteSheet() : handleCloseDeleteSheet()
+      }
+    >
+      <Sheet
+        open={isOpenSheet}
+        onOpenChange={open => (open ? handleOpenSheet() : handleCloseSheet())}
+      >
         <SheetTrigger asChild>
           <Button variant="ghost" onClick={() => reset()}>
             <Icons.edit size={16} />
@@ -69,11 +77,10 @@ export function UpdateAssetButton({
           </SheetHeader>
           <Separator className="my-4" />
 
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form onSubmit={handleSubmit(onUpdateAsset)}>
             <section className="flex flex-col gap-6">
               <div className="flex flex-col gap-2">
                 <Label>Ativo</Label>
-
                 <Input value={assetName} disabled />
               </div>
 

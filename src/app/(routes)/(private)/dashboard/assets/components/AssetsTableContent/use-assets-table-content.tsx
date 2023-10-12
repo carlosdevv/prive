@@ -1,7 +1,7 @@
 import { AssetDTO } from '@/app/(services)/asset/types'
 import { useAssetContext } from '@/contexts/useAssetContext'
 import { ClassEnum } from '@prisma/client'
-import { useRouter, usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 
 type AssetsTableContentComponentProps = {
@@ -18,7 +18,7 @@ export const useAssetsTableContentComponent = ({
 
   const [formattedAssets, setFormattedAssets] = useState<AssetDTO[]>([])
 
-  const handleFormatAssets = useCallback(async () => {
+  const handleFormatAssets = useCallback(() => {
     const isRendaFixa =
       assetsList &&
       assetsList.some(asset => asset.class === ClassEnum.RENDA_FIXA)
@@ -29,6 +29,7 @@ export const useAssetsTableContentComponent = ({
     const assets: AssetDTO[] = assetsList.map(asset => {
       if (isRendaFixa) {
         return {
+          id: asset.id,
           name: asset.name,
           value: asset.value,
           goal: asset.goal,
@@ -41,6 +42,7 @@ export const useAssetsTableContentComponent = ({
 
       if (isCryptoAsset) {
         return {
+          id: asset.id,
           name: asset.name.toUpperCase(),
           amount: asset.amount,
           goal: asset.goal,
@@ -53,6 +55,7 @@ export const useAssetsTableContentComponent = ({
       }
 
       return {
+        id: asset.id,
         name: asset.name.toUpperCase(),
         amount: asset.amount,
         goal: asset.goal,
@@ -64,7 +67,7 @@ export const useAssetsTableContentComponent = ({
       }
     })
 
-    setFormattedAssets(() => [...assets])
+    setFormattedAssets(assets.reverse())
   }, [assetsList])
 
   useEffect(() => {

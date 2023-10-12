@@ -49,7 +49,6 @@ export const useCreateAssetComponent = () => {
         if (tabSelected === (assetClass as ClassEnum)) {
           await handleRefetchAssetsOnCreate(assetClass as ClassEnum)
         }
-
         handleCloseSheet()
       }
     })

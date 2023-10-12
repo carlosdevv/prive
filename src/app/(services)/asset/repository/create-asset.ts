@@ -1,10 +1,10 @@
 'use server'
 
 import { db } from '@/lib/database'
+import { getCurrentUser } from '@/lib/session'
 import { ClassEnum } from '@prisma/client'
 import { UpdateClassValue } from '../../class/repository/update-class-value'
 import { CreateAssetBody } from '../types'
-import { getCurrentUser } from '@/lib/session'
 
 export async function CreateAsset(body: CreateAssetBody) {
   const user = await getCurrentUser()
@@ -63,10 +63,6 @@ export async function CreateAsset(body: CreateAssetBody) {
   })
 
   if (!newAsset) throw new Error('Não foi possível criar o ativo.')
-
-  if (value) {
-    await UpdateClassValue(userId, classe, value)
-  }
 
   return
 }
