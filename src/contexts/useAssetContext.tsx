@@ -15,6 +15,7 @@ import {
   useState
 } from 'react'
 import { useAppContext } from './useAppContext'
+import { AssetDTO } from '@/app/(services)/asset/types'
 
 export type AssetInfoManagerProps = {
   investmentValue: number
@@ -33,6 +34,8 @@ type AssetContextType = {
   tabSelected: ClassEnum
   handleSetTabSelected: (tab: ClassEnum) => void
   queryClient: QueryClient
+  handleSetAssetPropsToUpdate: (assetProps: AssetDTO) => void
+  assetPropsToUpdate?: AssetDTO
 }
 
 type AssetProviderProps = {
@@ -58,6 +61,11 @@ export const AssetProvider = ({ children }: AssetProviderProps) => {
       investmentClassAmount: 1,
       investmentAssetsAmount: 1
     })
+  const [assetPropsToUpdate, setAssetPropsToUpdate] = useState<AssetDTO>()
+
+  const handleSetAssetPropsToUpdate = useCallback((assetProps: AssetDTO) => {
+    setAssetPropsToUpdate(assetProps)
+  }, [])
 
   const handleSetAssetsList = useCallback((assets: Asset[]) => {
     setAssetsList(assets)
@@ -212,7 +220,9 @@ export const AssetProvider = ({ children }: AssetProviderProps) => {
         tabSelected,
         handleSetTabSelected,
         queryClient,
-        handleRefetchAssetsOnCreate
+        handleRefetchAssetsOnCreate,
+        handleSetAssetPropsToUpdate,
+        assetPropsToUpdate
       }}
     >
       {children}

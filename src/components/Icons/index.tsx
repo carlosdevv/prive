@@ -38,7 +38,8 @@ import {
   Twitter,
   User,
   Wallet,
-  X
+  X,
+  MoreHorizontal
 } from 'lucide-react'
 
 import { FcGoogle } from 'react-icons/fc'
@@ -60,6 +61,7 @@ export const Icons = {
   settings: Settings,
   billing: CreditCard,
   ellipsis: MoreVertical,
+  options: MoreHorizontal,
   add: Plus,
   warning: AlertCircle,
   user: User,

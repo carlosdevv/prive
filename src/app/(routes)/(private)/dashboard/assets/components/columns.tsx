@@ -1,10 +1,12 @@
 'use client'
 
 import { AssetDTO } from '@/app/(services)/asset/types'
+import { Icons } from '@/components/Icons'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/utils/format'
 import { ColumnDef } from '@tanstack/react-table'
-import { UpdateAssetButton } from './UpdateAssetButton'
+import Link from 'next/link'
 
 export const rendaFixaColumns: ColumnDef<AssetDTO>[] = [
   {
@@ -47,20 +49,28 @@ export const rendaFixaColumns: ColumnDef<AssetDTO>[] = [
     }
   },
   {
+    id: 'options',
     header: 'Opções',
-    cell: ({ row, cell }) => {
-      const assetName: string = row.getValue('name')
-      const assetValue: number = row.getValue('value')
-      const assetGoal: number = row.getValue('goal')
+    enableHiding: false,
+    cell: ({ row }) => {
+      const assetProps = row.original
+
+      const { id, ...queryParams } = assetProps
 
       return (
-        <UpdateAssetButton
-          key={cell.id}
-          assetName={assetName}
-          assetValue={assetValue}
-          assetGoal={assetGoal}
-          isRendaFixa={true}
-        />
+        <Link
+          href={{
+            pathname: `/dashboard/assets/${id}`,
+            query: {
+              ...queryParams,
+              updateAsset: true
+            }
+          }}
+        >
+          <Button variant={'ghost'}>
+            <Icons.edit size={16} />
+          </Button>
+        </Link>
       )
     }
   }
@@ -124,20 +134,23 @@ export const assetColumns: ColumnDef<AssetDTO>[] = [
     }
   },
   {
+    id: 'options',
     header: 'Opções',
-    cell: ({ row, cell }) => {
-      const assetName = row.getValue('name') as string
-      const assetValue = row.getValue('value') as number
-      const assetGoal = row.getValue('goal') as number
+    enableHiding: false,
+    cell: ({ row }) => {
+      const assetProps = row.original
 
       return (
-        <UpdateAssetButton
-          key={cell.id}
-          assetName={assetName}
-          assetValue={assetValue}
-          assetGoal={assetGoal}
-          isRendaFixa={false}
-        />
+        <Link
+          href={{
+            pathname: `/dashboard/assets/${assetProps.id}`,
+            query: assetProps
+          }}
+        >
+          <Button variant={'ghost'}>
+            <Icons.edit size={16} />
+          </Button>
+        </Link>
       )
     }
   }

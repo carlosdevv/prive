@@ -3,14 +3,11 @@
 import { Header } from '@/components/Header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ClassEnum } from '@prisma/client'
-import { AssetsTableContent } from '../AssetsTableContent'
-import { useAssetsContentComponent } from './use-assets-content'
-import { CreateAssetButton } from '../CreateAssetButton'
 import { AssetInfoManager } from '../AssetInfoManager'
+import { AssetsTableContent } from '../AssetsTableContent'
+import { CreateAssetButton } from '../CreateAssetButton'
 
 export default function AssetsPageContent() {
-  useAssetsContentComponent()
-
   const TabsData = {
     tabsData: [
       {
@@ -53,6 +50,7 @@ export default function AssetsPageContent() {
       <Header heading="Ativos" text={`Gerencie seus ativos.`}>
         <CreateAssetButton />
       </Header>
+
       <AssetInfoManager />
       <Tabs defaultValue="RENDA_FIXA">
         <TabsList className="grid w-full grid-cols-6">
