@@ -23,7 +23,7 @@ type UpdateAssetPageContentProps = {
 export const UpdateAssetPageContent = ({
   asset
 }: UpdateAssetPageContentProps) => {
-  const { form, onUpdateAsset, handleCancelUpdateAsset, assetProps } =
+  const { form, onUpdateAsset, handleCancelUpdateAsset, assetPropsToUpdate } =
     useUpdateAssetPageContentComponent()
 
   const isAssetRentFixed = asset.class === ClassEnum.RENDA_FIXA
@@ -51,12 +51,7 @@ export const UpdateAssetPageContent = ({
                     {isAssetRentFixed ? 'Valor' : 'Quantidade'}
                   </FormLabel>
                   <FormControl>
-                    <Input
-                      {...field}
-                      autoFocus
-                      defaultValue={assetProps?.value ?? ''}
-                      placeholder="R$ 1000,00"
-                    />
+                    <Input {...field} autoFocus placeholder="R$ 1000,00" />
                   </FormControl>
                   <FormDescription>
                     Insira o valor atualizado do seu ativo.
@@ -75,7 +70,6 @@ export const UpdateAssetPageContent = ({
                   <FormControl>
                     <Input
                       {...field}
-                      defaultValue={assetProps?.goal ?? ''}
                       placeholder="0% - 100%"
                       hasRightIcon={() => <Icons.percent size={16} />}
                     />
@@ -93,7 +87,7 @@ export const UpdateAssetPageContent = ({
             <FormItem>
               <FormLabel>Objeto Atual (%)</FormLabel>
               <Input
-                value={assetProps?.currentGoal}
+                value={assetPropsToUpdate?.currentGoal}
                 disabled
                 hasRightIcon={() => <Icons.percent size={16} />}
               />
@@ -101,14 +95,14 @@ export const UpdateAssetPageContent = ({
             </FormItem>
             <FormItem>
               <FormLabel>Diferença (%)</FormLabel>
-              <Input value={assetProps?.dif} disabled />
+              <Input value={assetPropsToUpdate?.dif} disabled />
               <FormDescription>
                 Diferença faltante para que seu ativo atinja o objetivo.
               </FormDescription>
             </FormItem>
             <FormItem>
               <FormLabel>Aporte</FormLabel>
-              <Input value={assetProps?.aporte} disabled />
+              <Input value={assetPropsToUpdate?.aporte} disabled />
               <FormDescription>
                 Valor para que seu ativo atinja o mais próximo do objetivo.
               </FormDescription>
@@ -116,11 +110,13 @@ export const UpdateAssetPageContent = ({
             <FormItem>
               <FormLabel>Buy/Hold</FormLabel>
               <Input
-                value={assetProps?.isBuy ? 'Buy' : 'Hold'}
+                value={assetPropsToUpdate?.isBuy ? 'Buy' : 'Hold'}
                 disabled
-                className={`${
-                  assetProps?.isBuy ? 'text-green-400' : 'text-amber-400'
-                } font-medium`}
+                className={`font-medium ${
+                  assetPropsToUpdate?.isBuy
+                    ? 'text-green-400'
+                    : 'text-amber-400'
+                }`}
               />
               <FormDescription>
                 Indicação de compra ou manutenção do ativo.

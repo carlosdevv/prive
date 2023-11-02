@@ -49,5 +49,6 @@ export const useDeleteAsset = (
 
 export const useFetchUSDCotation = (options?: UseQueryOptions<string>) =>
   useQuery<string>(['cotation-usd'], fetchUSDCotation, {
-    ...options
+    ...options,
+    staleTime: 1000 * 60 * 60 // 1 hour
   })

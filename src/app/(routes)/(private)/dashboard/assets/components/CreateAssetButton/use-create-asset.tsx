@@ -1,20 +1,32 @@
-import { fetchCryptos, fetchStocks } from '@/app/(services)/asset'
+import { fetchCryptos, fetchQuote, getAssets } from '@/app/(services)/asset'
 import { AssetProps } from '@/app/(services)/asset/types'
-import { useCreateAsset } from '@/app/(services)/asset/useAsset'
-import { useAssetContext } from '@/contexts/useAssetContext'
+import {
+  useCreateAsset,
+  useFetchUSDCotation
+} from '@/app/(services)/asset/useAsset'
+import useQueryParams from '@/hooks/useQueryParams'
 import { toast } from '@/hooks/useToast'
+import { useAppStore } from '@/store/app'
+import { useAssetsStore } from '@/store/assets'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ClassEnum } from '@prisma/client'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { useAssetsTableContentComponent } from '../AssetsTableContent/use-assets-table-content'
 
 const createAssetSchema = z.object({
-  name: z.string().nonempty('É necessário informar um ativo.'),
-  amount: z.coerce
-    .number({ invalid_type_error: 'Apenas números são permitidos.' })
-    .nonnegative('Insira um valor positivo.'),
+  name: z
+    .string({ required_error: 'Campo obrigatório.' })
+    .nonempty('Campo obrigatório.'),
+  amount: z
+    .string({
+      required_error: 'Campo obrigatório.',
+      invalid_type_error: 'Informe um valor.'
+    })
+    .max(16, 'Insira um valor de até 10 milhões.')
+    .transform(val => Number(val.replace(/[^\d,]/g, '').replace(/,/, '.'))),
   goal: z.coerce
     .number({ invalid_type_error: 'Apenas números são permitidos.' })
     .nonnegative('A meta deve ser positiva.')
@@ -25,56 +37,110 @@ const createAssetSchema = z.object({
 type CreateAssetFormData = z.infer<typeof createAssetSchema>
 
 export const useCreateAssetComponent = () => {
-  const {
-    register,
-    handleSubmit,
-    clearErrors,
-    reset,
-    formState: { errors }
-  } = useForm<CreateAssetFormData>({
-    resolver: zodResolver(createAssetSchema)
+  const form = useForm<CreateAssetFormData>({
+    resolver: zodResolver(createAssetSchema),
+    defaultValues: {
+      name: '',
+      amount: 0,
+      goal: 0
+    }
   })
-  const searchParams = useSearchParams()
-  const pathname = usePathname()
-  const router = useRouter()
-  const { tabSelected, queryClient, handleRefetchAssetsOnCreate } =
-    useAssetContext()
+  const queryClient = useQueryClient()
+
+  const {
+    tabSelected,
+    actions: { setIsLoadingValidateAssets, setAssets, setFormattedAssets }
+  } = useAssetsStore()
+
+  const {
+    dolarValue,
+    actions: { setDolarValue }
+  } = useAppStore()
+
+  const { handleFormatAssets, handleSumAssetsAndUpdateClass } =
+    useAssetsTableContentComponent({
+      classType: tabSelected
+    })
+
+  const { setQueryParams } = useQueryParams<{
+    createAsset?: boolean
+  }>()
 
   const [assetClass, setAssetClass] = useState('RENDA_FIXA')
-  const isOpenSheet: boolean = searchParams?.get('createAsset') ? true : false
+  const [currencyMode, setIsCurrencyMode] = useState<'BRL' | 'USD'>('BRL')
+  const [isOpenSheet, setIsOpenSheet] = useState<boolean>(false)
+  const [isSearchingAsset, setIsSearchingAsset] = useState<boolean>(false)
 
   const { mutateAsync: createAsset, isLoading: isLoadingCreateAsset } =
     useCreateAsset({
       onSuccess: async () => {
-        if (tabSelected === (assetClass as ClassEnum)) {
-          await handleRefetchAssetsOnCreate(assetClass as ClassEnum)
-        }
-        handleCloseSheet()
+        await handleRefetchAssetsOnCreate(assetClass as ClassEnum)
       }
     })
 
-  const handleOpenSheet = useCallback(
-    () =>
-      router.push(`${pathname}?${searchParams?.toString()}&createAsset=true`),
-    [pathname, router, searchParams]
+  const { data: USDCotation, isLoading: isLoadingUSDCotation } =
+    useFetchUSDCotation({
+      enabled: !dolarValue
+    })
+
+  const handleChangeCurrencyMode = useCallback(
+    () => setIsCurrencyMode(prev => (prev === 'BRL' ? 'USD' : 'BRL')),
+    []
   )
 
-  const handleCloseSheet = useCallback(
-    () =>
-      router.push(
-        `${pathname}?tabSelected=${searchParams?.get('tabSelected')}`
-      ),
-    [pathname, router, searchParams]
+  const handleOpenSheet = useCallback(() => {
+    setIsOpenSheet(true)
+  }, [])
+
+  const handleCloseSheet = useCallback(() => {
+    setIsOpenSheet(false)
+    form.reset()
+  }, [form])
+
+  const handleRefetchAssetsOnCreate = useCallback(
+    async (className: ClassEnum) => {
+      if (tabSelected !== className) {
+        handleCloseSheet()
+        return
+      }
+
+      setIsLoadingValidateAssets(true)
+      const assets = await queryClient.fetchQuery({
+        queryKey: ['getAssets'],
+        queryFn: () => getAssets({ class: className })
+      })
+
+      setAssets(assets)
+      setFormattedAssets(handleFormatAssets(assets))
+      await handleSumAssetsAndUpdateClass(assets, ClassEnum.RENDA_FIXA)
+      setIsLoadingValidateAssets(false)
+      handleCloseSheet()
+    },
+    [
+      handleCloseSheet,
+      handleFormatAssets,
+      handleSumAssetsAndUpdateClass,
+      queryClient,
+      setAssets,
+      setFormattedAssets,
+      setIsLoadingValidateAssets,
+      tabSelected
+    ]
   )
 
   const onSubmit = useCallback(
     async (data: CreateAssetFormData) => {
+      const isBRL = currencyMode === 'BRL'
+      if (USDCotation) setDolarValue(Number(USDCotation))
+
       try {
         if (assetClass === ClassEnum.RENDA_FIXA) {
           const newAsset: AssetProps = {
             name: data.name,
             class: assetClass as ClassEnum,
-            value: data.amount,
+            value: !isBRL
+              ? (dolarValue ?? Number(USDCotation) ?? 1) * data.amount
+              : data.amount,
             goal: data.goal
           }
 
@@ -83,11 +149,12 @@ export const useCreateAssetComponent = () => {
         }
 
         if (assetClass === ClassEnum.CRYPTO) {
+          setIsSearchingAsset(true)
           const cryptoData = await queryClient.fetchQuery({
             queryKey: ['fetchCryptos'],
             queryFn: () => fetchCryptos([data.name.toUpperCase()])
           })
-
+          setIsSearchingAsset(false)
           if (!cryptoData) throw new Error()
 
           const newCryptoAsset: AssetProps = {
@@ -101,12 +168,12 @@ export const useCreateAssetComponent = () => {
           await createAsset(newCryptoAsset)
           return
         }
-
+        setIsSearchingAsset(true)
         const stockData = await queryClient.fetchQuery({
-          queryKey: ['fetchStocks'],
-          queryFn: () => fetchStocks([data.name.toUpperCase()])
+          queryKey: ['fetchQuote'],
+          queryFn: () => fetchQuote([data.name.toUpperCase()])
         })
-
+        setIsSearchingAsset(false)
         if (!stockData) throw new Error()
 
         const newAsset: AssetProps = {
@@ -120,6 +187,7 @@ export const useCreateAssetComponent = () => {
         await createAsset(newAsset)
         return
       } catch (error) {
+        setIsSearchingAsset(false)
         toast({
           title: 'Algo deu errado.',
           description: `Não encontramos o ativo ${data.name.toUpperCase()}.`,
@@ -127,21 +195,37 @@ export const useCreateAssetComponent = () => {
         })
       }
     },
-    [assetClass, queryClient, createAsset]
+    [
+      currencyMode,
+      USDCotation,
+      setDolarValue,
+      assetClass,
+      queryClient,
+      createAsset,
+      dolarValue
+    ]
   )
+
+  useEffect(() => {
+    if (isOpenSheet) {
+      setQueryParams({ createAsset: true })
+    } else {
+      setQueryParams({ createAsset: undefined })
+    }
+  }, [isOpenSheet, setQueryParams])
 
   return {
     isOpenSheet,
-    reset,
-    handleSubmit,
     onSubmit,
     assetClass,
     setAssetClass,
-    register,
-    errors,
-    clearErrors,
     isLoadingCreateAsset,
     handleOpenSheet,
-    handleCloseSheet
+    handleCloseSheet,
+    form,
+    currencyMode,
+    handleChangeCurrencyMode,
+    isLoadingUSDCotation,
+    isSearchingAsset
   }
 }

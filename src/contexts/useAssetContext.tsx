@@ -1,7 +1,8 @@
 'use client'
 
-import { fetchCryptos, fetchStocks, getAssets } from '@/app/(services)/asset'
+import { fetchCryptos, fetchQuote, getAssets } from '@/app/(services)/asset'
 import { UpdateAssetValue } from '@/app/(services)/asset/repository/update-asset-value'
+import { AssetDTO } from '@/app/(services)/asset/types'
 import { UpdateClassValue } from '@/app/(services)/class/repository/update-class-value'
 import { Asset, ClassEnum } from '@prisma/client'
 import { QueryClient, useQueryClient } from '@tanstack/react-query'
@@ -15,7 +16,6 @@ import {
   useState
 } from 'react'
 import { useAppContext } from './useAppContext'
-import { AssetDTO } from '@/app/(services)/asset/types'
 
 export type AssetInfoManagerProps = {
   investmentValue: number
@@ -158,8 +158,8 @@ export const AssetProvider = ({ children }: AssetProviderProps) => {
         })
       } else {
         const stockData = await queryClient.fetchQuery({
-          queryKey: ['fetchStocks'],
-          queryFn: () => fetchStocks(assets.map(asset => asset.name)),
+          queryKey: ['fetchQuote'],
+          queryFn: () => fetchQuote(assets.map(asset => asset.name)),
           staleTime: 1000 * 60 * 60 // 1 hour
         })
 

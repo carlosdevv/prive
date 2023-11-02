@@ -9,7 +9,6 @@ import {
   CryptoResponse,
   DeleteAssetParams,
   GetAssetsProps,
-  TickerResponse,
   UpdateAssetParams
 } from './types'
 
@@ -115,30 +114,25 @@ export const fetchCryptos = async (coins: string[]) => {
   return formmatedData
 }
 
-export const fetchStocks = async (tickers: string[]) => {
-  const brapiToken = process.env.NEXT_PUBLIC_BRAPI_TOKEN
-  const url = `https://brapi.dev/api/quote/${tickers.toString()}`
+export const fetchQuote = async (tickers: string[]) => {
+  const url = `https://twelve-data1.p.rapidapi.com/quote`
 
-  const queryParams = {
-    range: '1d',
-    interval: '1h',
-    fundamental: false,
-    dividends: false,
-    token: brapiToken
+  const headers = {
+    'X-RapidAPI-Key': process.env.NEXT_PUBLIC_RAPIDAPI_KEY,
+    'X-RapidAPI-Host': process.env.NEXT_PUBLIC_RAPIDAPI_HOST
+  }
+
+  const params = {
+    symbol: tickers.toString(),
+    interval: '1day',
+    outputsize: '1',
+    format: 'json'
   }
 
   const { data } = await api.get(url, {
-    params: queryParams
+    params,
+    headers
   })
 
-  const formmatedData: TickerResponse = {
-    result: tickers.map((ticker, index) => {
-      return {
-        ticker: ticker,
-        value: data.results[index].regularMarketPrice
-      }
-    })
-  }
-
-  return formmatedData
+  return data
 }

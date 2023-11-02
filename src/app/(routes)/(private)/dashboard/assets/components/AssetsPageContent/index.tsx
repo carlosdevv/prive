@@ -3,13 +3,17 @@
 import { Header } from '@/components/Header'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ClassEnum } from '@prisma/client'
+import { useMemo } from 'react'
 import { AssetInfoManager } from '../AssetInfoManager'
 import { AssetsTableContent } from '../AssetsTableContent'
 import { CreateAssetButton } from '../CreateAssetButton'
+import { useAssetsPageContent } from './use-assets-page-content'
 
 export default function AssetsPageContent() {
-  const TabsData = {
-    tabsData: [
+  const { handleChangeTab, isLoadingValidateAssets } = useAssetsPageContent()
+
+  const tabsData = useMemo(
+    () => [
       {
         value: ClassEnum.RENDA_FIXA,
         title: 'Renda Fixa',
@@ -42,8 +46,9 @@ export default function AssetsPageContent() {
         title: 'Crypto',
         content: <AssetsTableContent classType={ClassEnum.CRYPTO} />
       }
-    ]
-  }
+    ],
+    []
+  )
 
   return (
     <>
@@ -54,14 +59,19 @@ export default function AssetsPageContent() {
       <AssetInfoManager />
       <Tabs defaultValue="RENDA_FIXA">
         <TabsList className="grid w-full grid-cols-6">
-          {TabsData.tabsData.map(tab => (
-            <TabsTrigger key={tab.value} value={tab.value}>
+          {tabsData.map(tab => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              onClick={() => handleChangeTab(tab.value)}
+              disabled={isLoadingValidateAssets}
+            >
               {tab.title}
             </TabsTrigger>
           ))}
         </TabsList>
 
-        {TabsData.tabsData.map(tab => (
+        {tabsData.map(tab => (
           <TabsContent key={tab.value} value={tab.value}>
             {tab.content}
           </TabsContent>

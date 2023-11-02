@@ -11,9 +11,10 @@ export function formatDateAbreviated(date: Date): string {
 }
 
 export function formatCurrency(value: number, currency: string): string {
-  const valueFormatted = value.toLocaleString('pt-BR', {
+  const valueFormatted = Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: currency
-  })
-  return valueFormatted
+  }).format(value)
+
+  return valueFormatted ?? ''
 }

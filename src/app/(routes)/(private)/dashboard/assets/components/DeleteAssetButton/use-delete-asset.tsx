@@ -1,9 +1,12 @@
 import { useDeleteAsset } from '@/app/(services)/asset/useAsset'
 import { useAssetContext } from '@/contexts/useAssetContext'
+import { toast } from '@/hooks/useToast'
+import { useSearchParams } from 'next/navigation'
 import { useCallback, useState } from 'react'
 
 export const useDeleteAssetComponent = () => {
   const { tabSelected, handleGetAssets, assetPropsToUpdate } = useAssetContext()
+  const searchParams = useSearchParams()
 
   const [isOpenDeleteAssetDialog, setIsOpenDeleteAssetDialog] =
     useState<boolean>(false)
@@ -16,10 +19,10 @@ export const useDeleteAssetComponent = () => {
       }
     })
 
-  const handleOpenDeleteSheet = useCallback(
-    () => setIsOpenDeleteAssetDialog(true),
-    []
-  )
+  const handleOpenDeleteSheet = useCallback(() => {
+    setIsOpenDeleteAssetDialog(true)
+    console.log(assetPropsToUpdate)
+  }, [])
 
   const handleCloseDeleteSheet = useCallback(
     () => setIsOpenDeleteAssetDialog(false),
@@ -27,9 +30,17 @@ export const useDeleteAssetComponent = () => {
   )
 
   const handleRemoveAsset = useCallback(async () => {
-    if (!assetPropsToUpdate) return
+    const assetName = searchParams?.get('name')
+    if (!assetPropsToUpdate || assetName !== assetPropsToUpdate.name) {
+      toast({
+        title: 'Erro.',
+        description: 'Não foi possível remover o ativo, tente novamente.'
+      })
+      return
+    }
+
     await deleteAsset({ name: assetPropsToUpdate.name })
-  }, [assetPropsToUpdate, deleteAsset])
+  }, [assetPropsToUpdate, deleteAsset, searchParams])
 
   return {
     handleOpenDeleteSheet,

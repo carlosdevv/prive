@@ -7,6 +7,7 @@ import { BASE_ROUTES } from '@/lib/routes'
 import { getCurrentUser } from '@/lib/session'
 import { redirect } from 'next/navigation'
 import { PrivateProviders } from './private-providers'
+import { InitializerAppStore } from '@/store/app/initializer'
 
 interface PrivateLayoutProps {
   children?: React.ReactNode
@@ -41,6 +42,7 @@ export default async function PrivateLayout({ children }: PrivateLayoutProps) {
           <Nav items={privateLayoutConfig.dashboardNavBar} />
         </aside>
         <main className="flex w-full flex-1 flex-col overflow-hidden">
+          <InitializerAppStore userProps={user} />
           <PrivateProviders user={user}>{children}</PrivateProviders>
         </main>
       </div>

@@ -1,7 +1,7 @@
 import { DataTable } from '@/components/ui/data-table'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ClassEnum } from '@prisma/client'
-import { rendaFixaColumns, assetColumns } from '../columns'
+import { assetColumns, rendaFixaColumns } from '../columns'
 import { useAssetsTableContentComponent } from './use-assets-table-content'
 
 type AssetsTableContentProps = {
@@ -13,7 +13,7 @@ export function AssetsTableContent({
   classType,
   isRendaFixa = false
 }: AssetsTableContentProps) {
-  const { formattedAssets, isLoadingAssets } = useAssetsTableContentComponent({
+  const { isLoadingAssets, formattedAssets } = useAssetsTableContentComponent({
     classType
   })
 

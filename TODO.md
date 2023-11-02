@@ -4,4 +4,4 @@
 # Feat: Create validation in create asset popup when asset selected is USD
 # Fix: Discover why the assets dont load (acoes)
 # Fix: Resolve the api problem how make requests with cachetime (useQuery or Mutation?)
-# Feat: input currency mask
+# Fix: Convert assets to right currency when create asset

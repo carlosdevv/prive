@@ -1,12 +1,10 @@
 'use client'
 
 import { AssetDTO } from '@/app/(services)/asset/types'
-import { Icons } from '@/components/Icons'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/utils/format'
 import { ColumnDef } from '@tanstack/react-table'
-import Link from 'next/link'
+import { UpdateAssetButton } from './UpdateAssetButton'
 
 export const rendaFixaColumns: ColumnDef<AssetDTO>[] = [
   {
@@ -55,23 +53,7 @@ export const rendaFixaColumns: ColumnDef<AssetDTO>[] = [
     cell: ({ row }) => {
       const assetProps = row.original
 
-      const { id, ...queryParams } = assetProps
-
-      return (
-        <Link
-          href={{
-            pathname: `/dashboard/assets/${id}`,
-            query: {
-              ...queryParams,
-              updateAsset: true
-            }
-          }}
-        >
-          <Button variant={'ghost'}>
-            <Icons.edit size={16} />
-          </Button>
-        </Link>
-      )
+      return <UpdateAssetButton assetProps={assetProps} />
     }
   }
 ]
@@ -140,18 +122,7 @@ export const assetColumns: ColumnDef<AssetDTO>[] = [
     cell: ({ row }) => {
       const assetProps = row.original
 
-      return (
-        <Link
-          href={{
-            pathname: `/dashboard/assets/${assetProps.id}`,
-            query: assetProps
-          }}
-        >
-          <Button variant={'ghost'}>
-            <Icons.edit size={16} />
-          </Button>
-        </Link>
-      )
+      return <UpdateAssetButton assetProps={assetProps} />
     }
   }
 ]

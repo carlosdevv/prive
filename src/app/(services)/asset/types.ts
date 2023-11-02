@@ -36,11 +36,11 @@ export enum CoinOptions {
   BTC = 'BTC-BRL'
 }
 
-export type TickerResponse = {
-  result: {
-    ticker: string
-    value: number
-  }[]
+export type QuoteResponse = {
+  name: string
+  symbol: string
+  currency: number
+  price: number
 }
 
 export type CryptoResponse = {
